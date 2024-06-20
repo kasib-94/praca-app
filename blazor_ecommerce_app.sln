@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34728.123
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "blazor_ecommerce_app", "blazor_ecommerce_app\blazor_ecommerce_app.csproj", "{03DD54A0-A6FD-41F5-AC31-DDE49A9EB66F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DB", "DB\DB.csproj", "{3E67C4FB-2E42-4172-B55E-9E03CD8C80AD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{03DD54A0-A6FD-41F5-AC31-DDE49A9EB66F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{03DD54A0-A6FD-41F5-AC31-DDE49A9EB66F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{03DD54A0-A6FD-41F5-AC31-DDE49A9EB66F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{03DD54A0-A6FD-41F5-AC31-DDE49A9EB66F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3E67C4FB-2E42-4172-B55E-9E03CD8C80AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3E67C4FB-2E42-4172-B55E-9E03CD8C80AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3E67C4FB-2E42-4172-B55E-9E03CD8C80AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3E67C4FB-2E42-4172-B55E-9E03CD8C80AD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {49672CC2-DA94-49DC-A922-9D210523D6B5}
+	EndGlobalSection
+EndGlobal
