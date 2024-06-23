@@ -6,7 +6,7 @@
         Admin = 1,
         User = 2
     }
-    public class SD
+    public static class SD
     {
 
     }

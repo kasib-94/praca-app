@@ -15,8 +15,7 @@ namespace DB.Domain.Entities
 
         public void Configure(EntityTypeBuilder<User> builder)
         {
-
-
+            builder.HasKey(x => x.Id);
         }
     }
 }
