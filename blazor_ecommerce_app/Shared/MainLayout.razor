@@ -1,5 +1,5 @@
 ﻿@inherits LayoutComponentBase
-
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
 <PageTitle>blazor_ecommerce_app</PageTitle>
 
 <div class="page">
@@ -9,9 +9,27 @@
         
             <NavMenu />
         
-
         <article class="content px-4">
             @Body
         </article>
     </main>
 </div>
+
+@code{
+    public AuthModel authModel;
+
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+       if (firstRender)
+        {
+            authModel = await localStorage.GetItemAsync<AuthModel>("auth_token");
+            if (authModel == null)
+            {
+                authModel = new();
+            }
+        }
+    }
+
+}

@@ -1,0 +1,28 @@
+﻿@page "/register";
+
+<div class="col-12">
+
+
+    <div class="col-4 mx-auto">
+        <Syncfusion.Blazor.DataForm.SfDataForm 
+                ID="MyForm" 
+                Model="@Model"
+                
+        >
+            <div class="mb-3 text-center">
+                <img src="/img/login.jpg" style="max-height:5rem" />
+                <h3>Register</h3>
+            </div>
+            <FormValidator>
+                <DataAnnotationsValidator></DataAnnotationsValidator>
+            </FormValidator>
+            <FormItems>
+                <FormAutoGenerateItems />
+            </FormItems>
+        </Syncfusion.Blazor.DataForm.SfDataForm>
+    </div>
+</div>
+
+@code {
+    public blazor_ecommerce_app.Models.RegisterModel Model { get; set; } = new();
+}
