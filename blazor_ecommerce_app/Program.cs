@@ -52,6 +52,7 @@ builder.Services.AddSingleton<blazor_ecommerce_app.Service.Notification.ToastSer
 
 
 
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

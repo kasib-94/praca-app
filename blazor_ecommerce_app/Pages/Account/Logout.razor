@@ -1,0 +1,30 @@
+﻿@page "/logout";
+@inject NavigationManager uriHelper;
+@using System.Threading;
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+<div class="logout-container">
+    <div class="logout-message">
+        <i class="fas fa-check-circle"></i>
+        <h1>Wylogowano pomyślnie</h1>
+        <p>Dziękujemy, użytkownik został wylogowany.</p>
+    </div>
+</div>
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var item = await localStorage.GetItemAsync<AuthModel>("auth_token");
+            if (item != null)
+            {
+                await localStorage.RemoveItemAsync("auth_token");
+            }
+            var timer = new Timer(new TimerCallback(_ =>
+           {
+               uriHelper.NavigateTo("/", forceLoad: true);
+           }), null, 2000, 2000);
+        }
+     
+   
+    }
+}

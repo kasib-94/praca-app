@@ -1,8 +1,9 @@
 ﻿@page "/login";
-
+@inject NavigationManager NavigationManager
 <div class="col-12">
     <div class="col-4 mx-auto">
-        <Syncfusion.Blazor.DataForm.SfDataForm ID="MyForm" Model="@Model">
+        <Syncfusion.Blazor.DataForm.SfDataForm ID="MyForm" Model="@Model"
+                                               OnSubmit="LoginHandle">
             <div class="mb-3 text-center">
                 <img src="/img/login.jpg" style="max-height:5rem" />
                 <h3>LOGIN</h3>
@@ -11,14 +12,44 @@
                 <DataAnnotationsValidator></DataAnnotationsValidator>
             </FormValidator>
             <FormItems>
-                <FormAutoGenerateItems />
+                <FormItem Field="@nameof(Model.Username)"></FormItem>
+                <FormItem EditorType="@FormEditorType.Password" Field="@nameof(Model.Password)"></FormItem>
             </FormItems>
         </Syncfusion.Blazor.DataForm.SfDataForm>
     </div>
 </div>
 
 @code {
-    public blazor_ecommerce_app.Models.LoginModel Model { get; set; } = new();
+    public DB.Models.LoginModel Model { get; set; } = new();
 
+    public async Task LoginHandle(EditContext model)
+    {
+        try
+        {
+            var item = model.Model as DB.Models.LoginModel;
+            await Mediator.Send(new DB.Modules.Authentication.Login.Login.Request()
+                {
 
+                    Password = item.Password,
+                    Username = item.Username
+                });
+            Notifiaction.ShowToast(new Service.Notification.ToastOption()
+                {
+                    Content = "Login successful",
+                    Type = Service.Notification.ToastType.succes
+                });
+            var timer = new Timer(new TimerCallback(_ =>
+        {
+            NavigationManager.NavigateTo("/", forceLoad: true);
+        }), null, 2000, 2000);
+        }
+        catch (Exception ex)
+        {
+            Notifiaction.ShowToast(new Service.Notification.ToastOption()
+                {
+                    Content = ex.Message,
+                    Type = Service.Notification.ToastType.error
+                });
+        }
+    }
 }

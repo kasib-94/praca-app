@@ -1,5 +1,5 @@
 ﻿@page "/register";
-
+@inject NavigationManager NavigationManager
 <div class="col-12">
 
 
@@ -16,7 +16,10 @@
                 <DataAnnotationsValidator></DataAnnotationsValidator>
             </FormValidator>
             <FormItems>
-                <FormAutoGenerateItems />
+                <FormItem Field="@nameof(Model.Username)"></FormItem>
+                <FormItem Field="@nameof(Model.Email)"></FormItem>
+                <FormItem EditorType="@FormEditorType.Password" Field="@nameof(Model.Password)"></FormItem>
+                <FormItem EditorType="@FormEditorType.Password" Field="@nameof(Model.PasswordRepeat)"></FormItem>
             </FormItems>
         </Syncfusion.Blazor.DataForm.SfDataForm>
     </div>
@@ -24,14 +27,14 @@
 
 @code {
 
-    public blazor_ecommerce_app.Models.RegisterModel Model { get; set; } = new();
+    public DB.Models.RegisterModel Model { get; set; } = new();
 
     public async Task RegisterHandle(EditContext model)
     {
 
         try
         {
-            var item = model.Model as blazor_ecommerce_app.Models.RegisterModel;
+            var item = model.Model as DB.Models.RegisterModel;
             await Mediator.Send(new DB.Modules.Authentication.Register.Register.Request()
                 {
                     Email = item.Email,
@@ -39,6 +42,17 @@
                     PasswordRepeat = item.PasswordRepeat,
                     UserName = item.Username
                 });
+            await Mediator.Send(new DB.Modules.Authentication.Login.Login.Request()
+                {
+                    Password = item.Password,
+                    Username = item.Username
+                });
+            Notifiaction.ShowToast(new Service.Notification.ToastOption()
+                {
+                    Content = "Login successful",
+                    Type = Service.Notification.ToastType.succes
+                });
+            NavigationManager.NavigateTo("/");
         }
         catch (Exception ex)
         {

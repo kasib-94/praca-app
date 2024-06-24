@@ -2,12 +2,15 @@
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
 <PageTitle>blazor_ecommerce_app</PageTitle>
 
+<CascadingValue Value="Auth">
 <div class="page">
    
 
-    <main>
+    <main> 
         
-            <NavMenu />
+            <NavMenu
+                 Auth="Auth"
+                />
         
         <article class="content px-4">
             @Body
@@ -15,21 +18,20 @@
     </main>
 </div>
 <ToastComponent/>
+</CascadingValue>
 @code{
-    public AuthModel authModel;
+    public AuthModel Auth;
 
 
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-       if (firstRender)
+        Auth = await localStorage.GetItemAsync<AuthModel>("auth_token");
+        if (Auth == null)
         {
-            authModel = await localStorage.GetItemAsync<AuthModel>("auth_token");
-            if (authModel == null)
-            {
-                authModel = new();
-            }
+            Auth = new();
         }
+        StateHasChanged();
     }
 
 }
