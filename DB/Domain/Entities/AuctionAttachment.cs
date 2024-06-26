@@ -5,8 +5,9 @@ namespace DB.Domain.Entities
     public class AuctionAttachment
     {
         public int Id { get; set; }
-        public byte[] Image { get; set; }
+        public string ImagePath { get; set; }
 
+        public int Order { get; set; }
         public int AuctionId { get; set; }
 
         public Auction Auction { get; set; }

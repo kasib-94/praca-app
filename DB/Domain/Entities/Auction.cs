@@ -11,8 +11,12 @@ namespace DB.Domain.Entities
     public class Auction
     {
         public int Id { get; set; }
+        public string Title { get; set; }
         public string Description { get; set; }
+        public AuctionType Type { get; set; }
 
+        public decimal PriceInstant { get; set; }
+        public decimal PriceAuction { get; set; }
 
         public ICollection<AuctionAttachment> Attachments { get; set; }
         public ICollection<AuctionStatus> Status { get; set; }
@@ -21,6 +25,8 @@ namespace DB.Domain.Entities
         public void Configure(EntityTypeBuilder<Auction> builder)
         {
             builder.HasKey(x => x.Id);
+
+
         }
     }
 }
