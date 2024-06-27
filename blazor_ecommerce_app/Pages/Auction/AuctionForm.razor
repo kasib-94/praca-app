@@ -21,14 +21,8 @@
                         </Syncfusion.Blazor.DropDowns.SfDropDownList>
                     </Template>
                 </FormItem>
-
-                <FormItem IsEnabled="EnableInstant"
-                        Field="@nameof(Model.PriceInstant)" Placeholder="Auction instant buy price" ColumnSpan="6"></FormItem>
-
-
-                <FormItem IsEnabled="EnableAuction"
-                        Field="@nameof(Model.PriceAuction)" Placeholder="Auction starting price" ColumnSpan="6"></FormItem>
-                
+               
+               
                 <FormItem Field="@nameof(Model.Title)"></FormItem>
               <FormItem Field="@nameof(Model.Description)">
                  <Template>
@@ -49,6 +43,19 @@
                 </FormItem>
               
             </FormItems>
+            @if (Model.EnableAuction)
+            {
+                <FormItems>
+                <FormItem Field="@nameof(Model.PriceAuction)" Placeholder="Auction starting price" ColumnSpan="6"></FormItem>
+                </FormItems>
+            }
+             @if (Model.EnableInstant)
+                {
+            <FormItems>
+
+                    <FormItem Field="@nameof(Model.PriceInstant)" Placeholder="Auction instant buy price" ColumnSpan="6"></FormItem>
+            </FormItems>
+                }
         </Syncfusion.Blazor.DataForm.SfDataForm>
     </div>
 </div>
@@ -56,27 +63,7 @@
 @code {
     public DB.Models.NewAuction Model { get; set; } = new();
     public List<string> AllowedExtensions = new() { ".jpg", ".png"};
-    public bool EnableInstant
-    {
-        get
-        {
-            return Model.AuctionType == DB.Domain.Entities.AuctionType.Instant ||
-                      Model.AuctionType == DB.Domain.Entities.AuctionType.Days_7_With_Instant ||
-                      Model.AuctionType == DB.Domain.Entities.AuctionType.Days_14_With_Instant;
-        }
-        set { }
-    }
-
-    public bool EnableAuction
-    {
-        get
-        {
-            return Model.AuctionType == DB.Domain.Entities.AuctionType.Auction ||
-                      Model.AuctionType == DB.Domain.Entities.AuctionType.Days_7_With_Instant ||
-                      Model.AuctionType == DB.Domain.Entities.AuctionType.Days_14_With_Instant;
-        }
-        set{}
-    }
+  
 
 
     private List<ToolbarItemModel> Tools = new List<ToolbarItemModel>()

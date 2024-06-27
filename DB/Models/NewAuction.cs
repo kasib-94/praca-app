@@ -10,6 +10,28 @@
 
         public List<Photo> Photos { get; set; } = new();
 
+        public bool EnableInstant
+        {
+            get
+            {
+                return AuctionType == DB.Domain.Entities.AuctionType.Instant ||
+                          AuctionType == DB.Domain.Entities.AuctionType.Days_7_With_Instant ||
+                          AuctionType == DB.Domain.Entities.AuctionType.Days_14_With_Instant;
+            }
+            set { }
+        }
+
+        public bool EnableAuction
+        {
+            get
+            {
+                return AuctionType == DB.Domain.Entities.AuctionType.Auction ||
+                          AuctionType == DB.Domain.Entities.AuctionType.Days_7_With_Instant ||
+                          AuctionType == DB.Domain.Entities.AuctionType.Days_14_With_Instant;
+            }
+            set { }
+        }
+
     }
 
     public class Photo
