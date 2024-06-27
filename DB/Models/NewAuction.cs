@@ -2,10 +2,24 @@
 {
     public class NewAuction
     {
+        public decimal PriceAuction { get; set; }
+        public decimal PriceInstant { get; set; }
         public string Title { get; set; } = "";
         public string Description { get; set; } = "";
+        public DB.Domain.Entities.AuctionType AuctionType { get; set; }
 
-        public List<string> Photos { get; set; } = new();
+        public List<Photo> Photos { get; set; } = new();
+
+    }
+
+    public class Photo
+    {
+        public string Path { get; set; } = "";
+        public int Order { get; set; }
+        public bool Minature { get; set; } = false;
+        public string Extension { get; set; }
+
+        public FileStream Stream { get; set; }
 
     }
 }

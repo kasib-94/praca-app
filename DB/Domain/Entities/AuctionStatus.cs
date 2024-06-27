@@ -9,6 +9,8 @@ namespace DB.Domain.Entities
         Finished = 2,
     }
 
+
+
     public class AuctionStatus
     {
         public int Id { get; set; }

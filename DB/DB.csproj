@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Modules\Auction\Queries\" />
     <Folder Include="Services\" />
   </ItemGroup>
 

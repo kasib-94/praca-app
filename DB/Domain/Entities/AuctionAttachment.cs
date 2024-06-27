@@ -9,7 +9,7 @@ namespace DB.Domain.Entities
 
         public int Order { get; set; }
         public int AuctionId { get; set; }
-
+        public bool Miniature { get; set; } = false;
         public Auction Auction { get; set; }
 
 

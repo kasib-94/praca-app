@@ -2,18 +2,38 @@
 @using Syncfusion.Blazor.RichTextEditor;
 <div class="col-12">
     <div class="col-6 mx-auto">
-        <Syncfusion.Blazor.DataForm.SfDataForm ID="MyForm" 
+        <Syncfusion.Blazor.DataForm.SfDataForm ID="MyForm"  
                                                Model="@Model"
                                                OnSubmit="HandleSubmit">
             <FormValidator>
                 <DataAnnotationsValidator></DataAnnotationsValidator>
             </FormValidator>
             <FormItems>
+                <FormItem Field="@nameof(Model.AuctionType)">
+                    <Template>
+                        <Syncfusion.Blazor.DropDowns.SfDropDownList 
+                        TValue="int" 
+                        TItem="DB.SD.DropDownModel"
+                        Placeholder="Select auction type" 
+                        DataSource="@Lista"
+                        ValueChanged="(int value)=> {Model.AuctionType = (DB.Domain.Entities.AuctionType)value;StateHasChanged();Model = Model;}">
+                        <Syncfusion.Blazor.DropDowns.DropDownListFieldSettings Value="Id" Text="Name" />
+                        </Syncfusion.Blazor.DropDowns.SfDropDownList>
+                    </Template>
+                </FormItem>
+
+                <FormItem IsEnabled="EnableInstant"
+                        Field="@nameof(Model.PriceInstant)" Placeholder="Auction instant buy price" ColumnSpan="6"></FormItem>
+
+
+                <FormItem IsEnabled="EnableAuction"
+                        Field="@nameof(Model.PriceAuction)" Placeholder="Auction starting price" ColumnSpan="6"></FormItem>
+                
                 <FormItem Field="@nameof(Model.Title)"></FormItem>
               <FormItem Field="@nameof(Model.Description)">
                  <Template>
                      <Syncfusion.Blazor.RichTextEditor.SfRichTextEditor Value="@Model.Description">
-                          <RichTextEditorToolbarSettings Items="@Tools" />
+                          <RichTextEditorToolbarSettings EnableFloating=true Items="@Tools" />
                           <RichTextEditorQuickToolbarSettings  Link="@Link" />
                       </Syncfusion.Blazor.RichTextEditor.SfRichTextEditor>
                     </Template>
@@ -36,6 +56,28 @@
 @code {
     public DB.Models.NewAuction Model { get; set; } = new();
     public List<string> AllowedExtensions = new() { ".jpg", ".png"};
+    public bool EnableInstant
+    {
+        get
+        {
+            return Model.AuctionType == DB.Domain.Entities.AuctionType.Instant ||
+                      Model.AuctionType == DB.Domain.Entities.AuctionType.Days_7_With_Instant ||
+                      Model.AuctionType == DB.Domain.Entities.AuctionType.Days_14_With_Instant;
+        }
+        set { }
+    }
+
+    public bool EnableAuction
+    {
+        get
+        {
+            return Model.AuctionType == DB.Domain.Entities.AuctionType.Auction ||
+                      Model.AuctionType == DB.Domain.Entities.AuctionType.Days_7_With_Instant ||
+                      Model.AuctionType == DB.Domain.Entities.AuctionType.Days_14_With_Instant;
+        }
+        set{}
+    }
+
 
     private List<ToolbarItemModel> Tools = new List<ToolbarItemModel>()
     {
@@ -51,27 +93,21 @@
         new ToolbarItemModel() { Command = ToolbarCommand.Separator },
         new ToolbarItemModel() { Command = ToolbarCommand.Formats },
         new ToolbarItemModel() { Command = ToolbarCommand.Alignments },
-        new ToolbarItemModel() { Command = ToolbarCommand.Separator },
-        new ToolbarItemModel() { Command = ToolbarCommand.LowerCase },
-        new ToolbarItemModel() { Command = ToolbarCommand.UpperCase },
-        new ToolbarItemModel() { Command = ToolbarCommand.OrderedList },
-        new ToolbarItemModel() { Command = ToolbarCommand.Outdent },
-        new ToolbarItemModel() { Command = ToolbarCommand.Indent },
-        new ToolbarItemModel() { Command = ToolbarCommand.Separator },
-        new ToolbarItemModel() { Command = ToolbarCommand.CreateLink },
-        new ToolbarItemModel() { Command = ToolbarCommand.Image },
-        new ToolbarItemModel() { Command = ToolbarCommand.CreateTable },
-        new ToolbarItemModel() { Command = ToolbarCommand.Separator },
-        new ToolbarItemModel() { Command = ToolbarCommand.ClearFormat },
+
 
     };
-
     private List<LinkToolbarItemModel> Link = new List<LinkToolbarItemModel>()
     {
         new LinkToolbarItemModel() { Command = LinkToolbarCommand.Open },
         new LinkToolbarItemModel() { Command = LinkToolbarCommand.Edit },
         new LinkToolbarItemModel() { Command = LinkToolbarCommand.UnLink }
     };
+
+    List<DB.SD.DropDownModel> Lista { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        Lista = DB.SD.EnumHelper.GetEnumDisplayNames<DB.Domain.Entities.AuctionType>().ToList();
+    }
 
     private async Task OnChange(UploadChangeEventArgs args)
     {
@@ -82,7 +118,13 @@
                 var path = @"" + file.FileInfo.Name;
                 FileStream filestream = new FileStream(path, FileMode.Create, FileAccess.Write);
                 await file.File.OpenReadStream(long.MaxValue).CopyToAsync(filestream);
-                filestream.Close();
+                Model.Photos.Add(new DB.Models.Photo()
+                {
+                     Stream = filestream,
+                     Order = Model.Photos.Count,
+                      Extension = ".jpg"
+                });
+                
             }
         }
         catch (Exception ex)
@@ -91,8 +133,17 @@
         }
     }
 
-    private async Task HandleSubmit()
+    private async Task HandleSubmit(EditContext model)
     {
-        
+        var item = model.Model as DB.Models.NewAuction;
+        await Mediator.Send(new DB.Modules.Auction.Command.CreateAuction.Request()
+        {
+               Description = item.Description,
+                Photos = item.Photos,
+                 PriceAuction = item.PriceAuction,
+                PriceInstant = item.PriceInstant,
+                Title = item.Title,
+                Type = item.AuctionType
+        });
     }
 }
