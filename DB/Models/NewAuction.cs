@@ -41,7 +41,7 @@
         public bool Minature { get; set; } = false;
         public string Extension { get; set; }
 
-        public FileStream Stream { get; set; }
+        public MemoryStream Stream { get; set; }
 
     }
 }

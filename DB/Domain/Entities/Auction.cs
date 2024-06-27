@@ -22,6 +22,8 @@ namespace DB.Domain.Entities
     public class Auction
     {
         public int Id { get; set; }
+
+        public int UserId { get; set; }
         public string Title { get; set; } = "";
         public string Description { get; set; } = "";
         public AuctionType Type { get; set; }
@@ -34,6 +36,7 @@ namespace DB.Domain.Entities
         public DateTime AuctionFinish { get; set; }
         public DateTime AuctionStart { get; set; }
 
+        public User User { get; set; }
         public ICollection<AuctionAttachment> Attachments { get; set; }
         public ICollection<AuctionStatus> Status { get; set; }
 
@@ -42,7 +45,9 @@ namespace DB.Domain.Entities
         {
             builder.HasKey(x => x.Id);
 
-
+            builder.HasOne(x => x.User)
+                .WithMany(x => x.Auctions)
+                .HasForeignKey(x => x.UserId);
         }
     }
 }

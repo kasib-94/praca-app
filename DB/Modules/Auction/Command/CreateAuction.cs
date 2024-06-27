@@ -11,6 +11,7 @@ namespace DB.Modules.Auction.Command
     {
         public class Request : IRequest<int>
         {
+            public int UserId { get; set; }
             public string Title { get; set; } = "";
             public string Description { get; set; } = "";
             public decimal PriceAuction { get; set; } = decimal.Zero;
@@ -42,7 +43,8 @@ namespace DB.Modules.Auction.Command
                     var photoFilePath = Path.Combine(auctionFolderPath, $"{Guid.NewGuid()}{photo.Extension}");
                     using (var fileStream = new FileStream(photoFilePath, FileMode.Create, FileAccess.Write))
                     {
-                        photo.Stream.CopyTo(fileStream);
+                        photo.Stream.Seek(0, SeekOrigin.Begin);
+                        await photo.Stream.CopyToAsync(fileStream);
                     }
                     photo.Path = photoFilePath;
                 }

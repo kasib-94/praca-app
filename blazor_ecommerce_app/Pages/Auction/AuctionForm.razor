@@ -38,6 +38,9 @@
                     <Template>
                         <SfUploader AutoUpload="true">
                             <UploaderEvents ValueChange="@OnChange"></UploaderEvents>
+                            <UploaderButtons>
+                         
+                            </UploaderButtons>
                         </SfUploader>
                     </Template>
                 </FormItem>
@@ -64,7 +67,11 @@
     public DB.Models.NewAuction Model { get; set; } = new();
     public List<string> AllowedExtensions = new() { ".jpg", ".png"};
   
-
+    [CascadingParameter]
+    public AuthModel Auth
+    {
+        get; set;
+    }
 
     private List<ToolbarItemModel> Tools = new List<ToolbarItemModel>()
     {
@@ -103,15 +110,22 @@
             foreach (var file in args.Files)
             {
                 var path = @"" + file.FileInfo.Name;
-                FileStream filestream = new FileStream(path, FileMode.Create, FileAccess.Write);
-                await file.File.OpenReadStream(long.MaxValue).CopyToAsync(filestream);
-                Model.Photos.Add(new DB.Models.Photo()
+                using (MemoryStream memoryStream = new MemoryStream())
                 {
-                     Stream = filestream,
-                     Order = Model.Photos.Count,
-                      Extension = ".jpg"
-                });
-                
+                    await file.File.OpenReadStream(long.MaxValue).CopyToAsync(memoryStream);
+
+                    using (var fileStream = new FileStream(path, FileMode.Create, FileAccess.Write))
+                    {
+                        memoryStream.Seek(0, SeekOrigin.Begin);
+                        await memoryStream.CopyToAsync(fileStream);
+                    }
+                    Model.Photos.Add(new DB.Models.Photo()
+                        {
+                            Stream = memoryStream, 
+                            Order = Model.Photos.Count,
+                            Extension = ".jpg"
+                        });
+                }
             }
         }
         catch (Exception ex)
@@ -130,7 +144,8 @@
                  PriceAuction = item.PriceAuction,
                 PriceInstant = item.PriceInstant,
                 Title = item.Title,
-                Type = item.AuctionType
+                Type = item.AuctionType,
+                UserId = Auth.Id
         });
     }
 }
