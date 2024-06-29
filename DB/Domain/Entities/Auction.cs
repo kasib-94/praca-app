@@ -1,5 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace DB.Domain.Entities
@@ -33,12 +35,38 @@ namespace DB.Domain.Entities
         public decimal PriceInstant { get; set; }
         public decimal PriceAuctionStart { get; set; }
 
+
         public DateTime AuctionFinish { get; set; }
         public DateTime AuctionStart { get; set; }
+
+        [NotMapped]
+        public bool IsInstantBuy
+        {
+            get
+            {
+                return Type == AuctionType.Instant ||
+                    Type == AuctionType.Days_7_With_Instant ||
+                    Type == AuctionType.Days_14_With_Instant;
+            }
+        }
+
+        [NotMapped]
+        public bool IsAuction
+        {
+            get
+            {
+                return Type == AuctionType.Auction ||
+                    Type == AuctionType.Days_7_With_Instant ||
+                    Type == AuctionType.Days_14_With_Instant ||
+                    Type == AuctionType.Days_14 ||
+                    Type == AuctionType.Days_7;
+            }
+        }
 
         public User User { get; set; }
         public ICollection<AuctionAttachment> Attachments { get; set; }
         public ICollection<AuctionStatus> Status { get; set; }
+        public ICollection<AuctionOffers> Offers { get; set; }
 
 
         public void Configure(EntityTypeBuilder<Auction> builder)
@@ -46,8 +74,9 @@ namespace DB.Domain.Entities
             builder.HasKey(x => x.Id);
 
             builder.HasOne(x => x.User)
-                .WithMany(x => x.Auctions)
-                .HasForeignKey(x => x.UserId);
+          .WithMany(x => x.Auctions)
+          .HasForeignKey(x => x.UserId)
+          .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

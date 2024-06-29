@@ -10,13 +10,15 @@
 
         public List<Photo> Photos { get; set; } = new();
 
+        public List<AuctionStatus> Statuses { get; set; }
+
         public bool EnableInstant
         {
             get
             {
                 return AuctionType == DB.Domain.Entities.AuctionType.Instant ||
-                          AuctionType == DB.Domain.Entities.AuctionType.Days_7_With_Instant ||
-                          AuctionType == DB.Domain.Entities.AuctionType.Days_14_With_Instant;
+                       AuctionType == DB.Domain.Entities.AuctionType.Days_7_With_Instant ||
+                       AuctionType == DB.Domain.Entities.AuctionType.Days_14_With_Instant;
             }
             set { }
         }
@@ -26,22 +28,39 @@
             get
             {
                 return AuctionType == DB.Domain.Entities.AuctionType.Auction ||
-                          AuctionType == DB.Domain.Entities.AuctionType.Days_7_With_Instant ||
-                          AuctionType == DB.Domain.Entities.AuctionType.Days_14_With_Instant;
+                       AuctionType == DB.Domain.Entities.AuctionType.Days_7_With_Instant ||
+                       AuctionType == DB.Domain.Entities.AuctionType.Days_14_With_Instant ||
+                       AuctionType == DB.Domain.Entities.AuctionType.Days_14 ||
+                       AuctionType == DB.Domain.Entities.AuctionType.Days_7;
             }
             set { }
         }
 
     }
+    public class AuctionStatus
+    {
+        public DB.Domain.Entities.AuctionStatusType Type { get; set; }
+        public DateTime ActionDate { get; set; }
+        public int AuctionId { get; set; }
+    }
+
+    public class Offer
+    {
+        public int Id { get; set; }
+        public int UserId { get; set; }
+        public int AuctionId { get; set; }
+        public decimal? PriceInstant { get; set; }
+        public decimal? PriceAuction { get; set; }
+        public DateTime Date { get; set; }
+    }
 
     public class Photo
     {
-        public string Path { get; set; } = "";
+        public byte[] ImageData { get; set; }
         public int Order { get; set; }
         public bool Minature { get; set; } = false;
-        public string Extension { get; set; }
+        public string Extension { get; set; } = "";
 
-        public MemoryStream Stream { get; set; }
 
     }
 }

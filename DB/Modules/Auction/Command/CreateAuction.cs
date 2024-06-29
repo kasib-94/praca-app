@@ -33,21 +33,21 @@ namespace DB.Modules.Auction.Command
             public async Task<int> Handle(Request request, CancellationToken cancellationToken)
             {
                 var auctionGuid = Guid.NewGuid().ToString();
-                var auctionFolderPath = Path.Combine(DB.SD.SD.SavePath, auctionGuid);
-                if (!Directory.Exists(auctionFolderPath))
-                {
-                    Directory.CreateDirectory(auctionFolderPath);
-                }
-                foreach (var photo in request.Photos)
-                {
-                    var photoFilePath = Path.Combine(auctionFolderPath, $"{Guid.NewGuid()}{photo.Extension}");
-                    using (var fileStream = new FileStream(photoFilePath, FileMode.Create, FileAccess.Write))
-                    {
-                        photo.Stream.Seek(0, SeekOrigin.Begin);
-                        await photo.Stream.CopyToAsync(fileStream);
-                    }
-                    photo.Path = photoFilePath;
-                }
+                //var auctionFolderPath = Path.Combine(DB.SD.SD.SavePath, auctionGuid);
+                //if (!Directory.Exists(auctionFolderPath))
+                //{
+                //    Directory.CreateDirectory(auctionFolderPath);
+                //}
+                //foreach (var photo in request.Photos)
+                //{
+                //    var photoFilePath = Path.Combine(auctionFolderPath, $"{Guid.NewGuid()}{photo.Extension}");
+                //    using (var fileStream = new FileStream(photoFilePath, FileMode.Create, FileAccess.Write))
+                //    {
+                //        photo.Stream.Seek(0, SeekOrigin.Begin);
+                //        await photo.Stream.CopyToAsync(fileStream);
+                //    }
+                //    photo.Path = photoFilePath;
+                //}
                 DateTime auctionStart = DateTime.Now;
                 DateTime auctionFinish = DateTime.Now;
                 if (request.Type == AuctionType.Days_14 || request.Type == AuctionType.Days_14_With_Instant)
@@ -66,11 +66,13 @@ namespace DB.Modules.Auction.Command
                     Title = request.Title,
                     AuctionFinish = auctionFinish,
                     AuctionStart = auctionStart,
+                    UserId = request.UserId,
                     Attachments = request.Photos.Select(x => new AuctionAttachment()
                     {
-                        ImagePath = x.Path,
+                        ImageData = x.ImageData,
                         Order = x.Order,
-                        Miniature = x.Minature
+                        Miniature = x.Minature,
+                        Extension = x.Extension,
 
                     }).ToList(),
                     Status = new List<Domain.Entities.AuctionStatus>()

@@ -12,6 +12,9 @@ namespace DB.Domain.Entities
         public SD.Roles Role { get; set; }
 
         public ICollection<Auction> Auctions { get; set; }
+        public ICollection<AuctionOffers> AuctionOffers { get; set; }
+
+
 
 
         public void Configure(EntityTypeBuilder<User> builder)

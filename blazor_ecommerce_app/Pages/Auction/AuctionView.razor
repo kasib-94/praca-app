@@ -1,0 +1,51 @@
+﻿@page "/auctionview/{AuctionId:int}"
+@using DB.Modules.Auction.Queries;
+
+@if (Model != null)
+{
+@if (Model.Photos.Any())
+{
+    <div>
+        @Model.Title
+    </div>
+    <div>
+        <span>Auction started:</span>
+    </div>
+    <div>
+        @((MarkupString)Model.Description)
+    </div>
+
+    <div class="row">
+        @foreach (var photo in Model.Photos)
+        {
+            <div class="col-md-3 mb-3">
+                <div class="card">
+                    <img class="card-img-top" src="@(GetImageDataUrl(photo.ImageData, photo.Extension))" alt="Zdjęcie" />
+                </div>
+            </div>
+        }
+        </div>
+    }
+ 
+}
+@code {
+    [Parameter]
+    public int AuctionId { get; set; }
+
+
+    public GetAuctionById.Response Model { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Model = await Mediator.Send(new DB.Modules.Auction.Queries.GetAuctionById.Request()
+            {
+                AuctionId = AuctionId
+            });
+    }
+
+    private string GetImageDataUrl(byte[] imageData, string extension)
+    {
+        string base64Image = Convert.ToBase64String(imageData);
+        return $"data:image/{extension};base64,{base64Image}";
+    }
+}

@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace DB.Migrations
 {
-    public partial class userauctionFK : Migration
+    public partial class init : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -49,7 +49,7 @@ namespace DB.Migrations
                         column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -58,10 +58,11 @@ namespace DB.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    ImagePath = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ImageData = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
                     Order = table.Column<int>(type: "int", nullable: false),
                     AuctionId = table.Column<int>(type: "int", nullable: false),
-                    Miniature = table.Column<bool>(type: "bit", nullable: false)
+                    Miniature = table.Column<bool>(type: "bit", nullable: false),
+                    Extension = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -71,7 +72,36 @@ namespace DB.Migrations
                         column: x => x.AuctionId,
                         principalTable: "Auctions",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AuctionOffers",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    AuctionId = table.Column<int>(type: "int", nullable: false),
+                    PriceInstant = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    PriceAuction = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    Date = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AuctionOffers", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AuctionOffers_Auctions_AuctionId",
+                        column: x => x.AuctionId,
+                        principalTable: "Auctions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_AuctionOffers_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -92,13 +122,23 @@ namespace DB.Migrations
                         column: x => x.AuctionId,
                         principalTable: "Auctions",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AuctionAttachments_AuctionId",
                 table: "AuctionAttachments",
                 column: "AuctionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AuctionOffers_AuctionId",
+                table: "AuctionOffers",
+                column: "AuctionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AuctionOffers_UserId",
+                table: "AuctionOffers",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Auctions_UserId",
@@ -115,6 +155,9 @@ namespace DB.Migrations
         {
             migrationBuilder.DropTable(
                 name: "AuctionAttachments");
+
+            migrationBuilder.DropTable(
+                name: "AuctionOffers");
 
             migrationBuilder.DropTable(
                 name: "AuctionStatuses");

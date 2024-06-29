@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace DB.Domain.Entities
 {
@@ -28,7 +29,8 @@ namespace DB.Domain.Entities
 
             builder.HasOne(x => x.Auction)
                 .WithMany(x => x.Status)
-                .HasForeignKey(x => x.AuctionId);
+                .HasForeignKey(x => x.AuctionId)
+                                .OnDelete(DeleteBehavior.Restrict);
 
         }
     }

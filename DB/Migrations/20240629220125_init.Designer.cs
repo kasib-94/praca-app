@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DB.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240627202554_userauctionFK")]
-    partial class userauctionFK
+    [Migration("20240629220125_init")]
+    partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -80,9 +80,13 @@ namespace DB.Migrations
                     b.Property<int>("AuctionId")
                         .HasColumnType("int");
 
-                    b.Property<string>("ImagePath")
+                    b.Property<string>("Extension")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<byte[]>("ImageData")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
 
                     b.Property<bool>("Miniature")
                         .HasColumnType("bit");
@@ -95,6 +99,38 @@ namespace DB.Migrations
                     b.HasIndex("AuctionId");
 
                     b.ToTable("AuctionAttachments");
+                });
+
+            modelBuilder.Entity("DB.Domain.Entities.AuctionOffers", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int>("AuctionId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal?>("PriceAuction")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("PriceInstant")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AuctionId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AuctionOffers");
                 });
 
             modelBuilder.Entity("DB.Domain.Entities.AuctionStatus", b =>
@@ -154,7 +190,7 @@ namespace DB.Migrations
                     b.HasOne("DB.Domain.Entities.User", "User")
                         .WithMany("Auctions")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("User");
@@ -165,10 +201,29 @@ namespace DB.Migrations
                     b.HasOne("DB.Domain.Entities.Auction", "Auction")
                         .WithMany("Attachments")
                         .HasForeignKey("AuctionId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Auction");
+                });
+
+            modelBuilder.Entity("DB.Domain.Entities.AuctionOffers", b =>
+                {
+                    b.HasOne("DB.Domain.Entities.Auction", "Auction")
+                        .WithMany("Offers")
+                        .HasForeignKey("AuctionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("DB.Domain.Entities.User", "User")
+                        .WithMany("AuctionOffers")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Auction");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("DB.Domain.Entities.AuctionStatus", b =>
@@ -176,7 +231,7 @@ namespace DB.Migrations
                     b.HasOne("DB.Domain.Entities.Auction", "Auction")
                         .WithMany("Status")
                         .HasForeignKey("AuctionId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Auction");
@@ -186,11 +241,15 @@ namespace DB.Migrations
                 {
                     b.Navigation("Attachments");
 
+                    b.Navigation("Offers");
+
                     b.Navigation("Status");
                 });
 
             modelBuilder.Entity("DB.Domain.Entities.User", b =>
                 {
+                    b.Navigation("AuctionOffers");
+
                     b.Navigation("Auctions");
                 });
 #pragma warning restore 612, 618
