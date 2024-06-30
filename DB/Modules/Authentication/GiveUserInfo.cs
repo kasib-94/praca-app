@@ -51,7 +51,6 @@ namespace DB.Modules.Authentication
                           ).Count(),
                         AuctionsSold = x.Auctions.Where(y => y.Status.Any(w => w.Type == Domain.Entities.AuctionStatusType.Finished) == true
                                                                               && y.BuyerId != null).Count(),
-                        Score = x.u
 
 
 
