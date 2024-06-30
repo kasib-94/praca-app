@@ -24,6 +24,8 @@ namespace DB.Modules.Authentication
             public int AuctionsActive { get; set; }
             public int AuctionsSold { get; set; }
             public int AuctionsNotSold { get; set; }
+
+            public decimal Score { get; set; }
         }
 
         private class Handler : IRequestHandler<Request, Response>
@@ -48,7 +50,8 @@ namespace DB.Modules.Authentication
                                                                               && y.BuyerId == null
                           ).Count(),
                         AuctionsSold = x.Auctions.Where(y => y.Status.Any(w => w.Type == Domain.Entities.AuctionStatusType.Finished) == true
-                                                                              && y.BuyerId != null).Count()
+                                                                              && y.BuyerId != null).Count(),
+                        Score = x.u
 
 
 

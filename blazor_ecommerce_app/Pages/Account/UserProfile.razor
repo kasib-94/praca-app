@@ -1,8 +1,43 @@
 ﻿@page "/user/{UserId:int}"
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
 
-<h1>UserId: @UserId</h1>
+<blazor_ecommerce_app.Components.UserOverview UserModel="UserModel" />
+
 
 @code {
+    [CascadingParameter]
+    public AuthModel Auth
+    {
+        get; set;
+    }
     [Parameter]
     public int UserId { get; set; }
+    public DB.Modules.Authentication.GiveUserInfo.Response UserModel { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await FetchData();
+        }
+
+    }
+
+
+    public async Task FetchData()
+    {
+
+
+        if (Auth == null)
+        {
+            Auth = await localStorage.GetItemAsync<AuthModel>("auth_token");
+        }
+      
+
+        UserModel = await Mediator.Send(new DB.Modules.Authentication.GiveUserInfo.Request()
+            {
+                UserId = Auth.Id
+            });
+        StateHasChanged();
+    }
 }
