@@ -55,6 +55,7 @@
         public int Order { get; set; }
         public bool Minature { get; set; } = false;
         public string Extension { get; set; } = "";
+        public string UniqueId { get; set; }
 
 
     }

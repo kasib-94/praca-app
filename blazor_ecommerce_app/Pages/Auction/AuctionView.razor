@@ -24,82 +24,120 @@
         <DialogButton Content="Cancel" OnClick="()=>{AuctionOfferVisible = false;StateHasChanged();}" />
     </DialogButtons>
 </Syncfusion.Blazor.Popups.SfDialog>
-<div class="col-8">
+<div class="col-12">
     @if (Model != null)
     {
         <div class="container mt-4">
             <div class="row">
-                <div class="col-lg-6">
+                <div class="col-lg-4">
                     <div class="card mb-2">
                         <div class="card-body">
-                            <h4 class="card-title">@Model.Title</h4>
+                            <h4 class="card-title">@Model.Title</h4><h3>@(" auction of user"+Model.OwnerUsername)</h3>
                             <p class="card-text">
                                 <span class="badge bg-primary">Auction started:</span> @Model.AuctionStarted.ToString(DB.SD.SD.DateTimeFullFormat)
                             </p>
                             <p class="card-text">
                                 <span class="badge bg-warning">Auction will finish:</span> @Model.AuctionFinish.ToString(DB.SD.SD.DateTimeFullFormat)
                             </p>
-                            <div class="card-text">
-                                @((MarkupString)Model.Description)
-                            </div>
+
                         </div>
                     </div>
-                    <div class="card mb-4">
-                        <div class="card-body">
-                            <h4 class="card-title">Description</h4>
-                           
-                            <div class="card-text">
-                                @((MarkupString)Model.Description)
-                            </div>
-                        </div>
-                    </div>
+                  
                 </div>
-                <div class="col-lg-6">
+                <div class="col-lg-4">
                     <div class="d-flex flex-column">
                         @if (Model.BuyNowOption != null)
                         {
-                            <div class="mb-3">
-                                <Syncfusion.Blazor.Buttons.SfButton class="btn btn-success" OnClick="()=>{BuyInstantVisible = true;StateHasChanged();}">
-                                    Buy Now
-                                </Syncfusion.Blazor.Buttons.SfButton>
+
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <h4 class="card-title">Make offer</h4>
+
+                                    <div class="card-text">
+                                        <Syncfusion.Blazor.Buttons.SfButton class="btn btn-success" OnClick="()=>{BuyInstantVisible = true;StateHasChanged();}">
+                                            Buy Now
+                                        </Syncfusion.Blazor.Buttons.SfButton>
+                                    </div>
+                                </div>
                             </div>
+                           
                         }
                         @if (Model.AuctionOfferOption != null)
                         {
-                            <div class="mb-3">
-                                <SfNumericTextBox TValue="decimal?"
-                                                  Value=AuctionOffer
-                                                  ValueChanged="@(offer => {AuctionOffer = (decimal)offer;StateHasChanged();})"
-                                                  ValueExpression="()=>AuctionOffer"
-                                                  Format="c2"
-                                                  Placeholder="Your offer"
-                                                  FloatLabelType="@FloatLabelType.Auto">
-                                </SfNumericTextBox>
+
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <h4 class="card-title">Make offer</h4>
+                                    <div class="card-item">
+                                        <SfNumericTextBox TValue="decimal?"
+                                                          Value=AuctionOffer
+                                                          ValueChanged="@(offer => {AuctionOffer = (decimal)offer;StateHasChanged();})"
+                                                          ValueExpression="()=>AuctionOffer"
+                                                          Format="c2"
+                                                          Placeholder="Your offer"
+                                                          FloatLabelType="@FloatLabelType.Auto">
+                                        </SfNumericTextBox>
+                                    </div>
+                                    <div class="card-text">
+                                        <Syncfusion.Blazor.Buttons.SfButton class="btn btn-success"
+                                        Disabled="IsCurrentOfferValid == false"
+                                        OnClick="()=>{AuctionOfferVisible = true;StateHasChanged();}">
+                                            Make offer
+                                        </Syncfusion.Blazor.Buttons.SfButton>
+                                    </div>
+                                </div>
                             </div>
+
+                           
                         }
                     </div>
                 </div>
+                @if (DB.SD.AuctionSD.IsAuction(Model.AuctionType))
+                {
+                    <div class="card-body col-lg-4">
+                        <h4 class="card-title">Current offers</h4>
+                        <div class="column">
+                            @{
+                                bool isFirst = true; 
+                            }
+                            @foreach (var offer in Model.Offers.Where(x => x.PriceAuction.HasValue).OrderByDescending(x => x.PriceAuction))
+                            {
+                                <div class="mb-3">
+                                   
+                                    <div class="card h-100">
+                                        <div class="card-body">
+                                            @if (isFirst)
+                                            {
+                                                <div class="card-item">
+                                                <span class="badge bg-success">Highest offer!</span>
+                                                </div>
+                                            }
+                                            <p class="card-text">
+                                                <strong>@offer.UserName</strong> offered <span class="badge bg-info">@offer.PriceAuction.ToString()</span>
+                                                <br />
+                                                <small class="text-muted">at @offer.Date.ToString(DB.SD.SD.DateTimeFullFormat)</small>
+                                            </p>
+                                        </div>
+                                    </div>
+                                     @{
+                                        isFirst = false; 
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
             </div>
 
-            @if (DB.SD.AuctionSD.IsAuction(Model.AuctionType))
-            {
-                <div class="row mt-4">
-                    @foreach (var offer in Model.Offers.Where(x => x.PriceAuction.HasValue).OrderBy(x => x.PriceAuction))
-                    {
-                        <div class="col-md-4 mb-3">
-                            <div class="card h-100">
-                                <div class="card-body">
-                                    <p class="card-text">
-                                        <strong>@offer.UserName</strong> offered <span class="badge bg-success">@offer.PriceAuction.ToString()</span>
-                                        <br />
-                                        <small class="text-muted">at @offer.Date.ToString(DB.SD.SD.DateTimeFullFormat)</small>
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    }
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h4 class="card-title">Description</h4>
+
+                    <div class="card-text">
+                        @((MarkupString)Model.Description)
+                    </div>
                 </div>
-            }
+            </div>
 
             @if (Model.Photos.Any())
             {
@@ -150,12 +188,12 @@
         {
             await FetchData();
         }
-  
+
     }
 
     public async Task FetchData()
     {
-     
+
         if (Auth == null)
         {
             Auth = await localStorage.GetItemAsync<AuthModel>("auth_token");
@@ -185,7 +223,9 @@
     {
         if (IsCurrentOfferValid)
         {
-            await Mediator.Send(Model.AuctionOfferOption);
+            var item = Model.AuctionOfferOption as DB.Modules.Auction.Command.MakeOffer.Request;
+            item.Price = AuctionOffer;
+            await Mediator.Send(item);
             AuctionOfferVisible = false;
             await FetchData();
         }

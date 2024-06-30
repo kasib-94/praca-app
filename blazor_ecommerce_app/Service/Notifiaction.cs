@@ -31,14 +31,14 @@
         public static string DajKlaseCss(ToastType type)
         {
             if (type == ToastType.error)
-                return "e-toast-danger";
+                return "alert alert-danger";
             if (type == ToastType.succes)
-                return "e-toast-succes";
+                return "alert alert-success";
             if (type == ToastType.info)
-                return "e-toast-info";
+                return "alert alert-info";
             if (type == ToastType.warning)
-                return "e-toast-warning";
-            return "";
+                return "alert alert-warning";
+            return "alert alert-info";
         }
     }
 }
