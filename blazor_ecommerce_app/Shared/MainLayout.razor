@@ -1,10 +1,10 @@
 ﻿@inherits LayoutComponentBase
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
-<PageTitle>blazor_ecommerce_app</PageTitle>
+<PageTitle>Auctioner</PageTitle>
 
-<CascadingValue Value="Auth">
+
 <div class="page">
-   
+   <CascadingValue IsFixed=true TValue="@AuthModel" Value="@Auth">
 
     <main> 
         
@@ -16,22 +16,27 @@
             @Body
         </article>
     </main>
+    </CascadingValue>
 </div>
 <ToastComponent/>
-</CascadingValue>
-@code{
-    public AuthModel Auth;
 
+@code{
+    public AuthModel Auth { get; set; }
 
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        Auth = await localStorage.GetItemAsync<AuthModel>("auth_token");
-        if (Auth == null)
+        if (firstRender)
         {
-            Auth = new();
+            Auth = await localStorage.GetItemAsync<AuthModel>("auth_token");
+            if (Auth == null)
+            {
+                Auth = new AuthModel();
+            }
+
+            StateHasChanged(); 
         }
-        StateHasChanged();
+
     }
 
 }

@@ -5,10 +5,10 @@
 <SfToast @ref="Toast" CssClass="@ToastCss" Timeout=2000>
     <ToastTemplates>
         <Content>
-            @Options.Content
+            @((MarkupString)Options.Content)
         </Content>
     </ToastTemplates>
-    <ToastPosition X="Right"></ToastPosition>
+    <ToastPosition X="Center"></ToastPosition>
 </SfToast>
 
 @code {

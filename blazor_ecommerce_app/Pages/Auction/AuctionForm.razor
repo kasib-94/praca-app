@@ -17,7 +17,7 @@
                         TItem="DB.SD.DropDownModel"
                         Placeholder="Select auction type" 
                         DataSource="@Lista"
-                        ValueChanged="(int value)=> {Model.AuctionType = (DB.Domain.Entities.AuctionType)value;StateHasChanged();Model = Model;}">
+                        ValueChanged="(int value)=> {Model.AuctionType = (DB.Domain.Entities.AuctionType)value;StateHasChanged();}">
                         <Syncfusion.Blazor.DropDowns.DropDownListFieldSettings Value="Id" Text="Name" />
                         </Syncfusion.Blazor.DropDowns.SfDropDownList>
                     </Template>
@@ -41,7 +41,7 @@
 
                 <FormItem Field="@nameof(Model.Photos)">
                     <Template>
-                        <SfUploader MaxFileSize="5000000" AllowMultiple=false AutoUpload="true">
+                        <SfUploader  MaxFileSize="5000000" AllowMultiple=true AutoUpload="true">
                             <UploaderEvents ValueChange="@OnChange"></UploaderEvents>
                             <UploaderButtons>
                          
@@ -51,19 +51,17 @@
                 </FormItem>
               
             </FormItems>
-            @if (Model.EnableAuction)
+            @if (DB.SD.AuctionSD.IsAuction(Model.AuctionType))
             {
                 <FormItems>
-                <FormItem Field="@nameof(Model.PriceAuction)" Placeholder="Auction starting price" ColumnSpan="6"></FormItem>
+                <FormItem Field="@nameof(Model.PriceAuction)" LabelText="Auction starting price" ColumnSpan="6"></FormItem>
                 </FormItems>
             }
-             @if (Model.EnableInstant)
-                {
+            @if (DB.SD.AuctionSD.IsInstantBuy(Model.AuctionType))
+            {
             <FormItems>
 
-                    <FormItem
-                        
-                        Field="@nameof(Model.PriceInstant)" Placeholder="Auction instant buy price" ColumnSpan="6"></FormItem>
+                    <FormItem Field="@nameof(Model.PriceInstant)" LabelText="Auction instant buy price" ColumnSpan="6"></FormItem>
             </FormItems>
                 }
         </Syncfusion.Blazor.DataForm.SfDataForm>
@@ -140,7 +138,7 @@
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            
         }
     }
 

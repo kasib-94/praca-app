@@ -16,11 +16,11 @@ namespace DB.Modules.Authentication.Login
             public string Password { get; set; } = "";
 
         }
-        private class LoginHandler : IRequestHandler<Request, bool>
+        private class Handler : IRequestHandler<Request, bool>
         {
             private readonly AppDbContext _dbContext;
             private readonly Blazored.LocalStorage.ILocalStorageService _localStorage;
-            public LoginHandler(AppDbContext dbContext, Blazored.LocalStorage.ILocalStorageService localStorage)
+            public Handler(AppDbContext dbContext, Blazored.LocalStorage.ILocalStorageService localStorage)
             {
                 _dbContext = dbContext;
                 _localStorage = localStorage;

@@ -47,7 +47,7 @@
         {
             Notifiaction.ShowToast(new Service.Notification.ToastOption()
                 {
-                    Content = ex.Message,
+                    Exception = ex,
                     Type = Service.Notification.ToastType.error
                 });
         }

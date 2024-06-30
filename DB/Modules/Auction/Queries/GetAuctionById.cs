@@ -1,5 +1,6 @@
 ﻿using DB.Domain;
 using DB.Models;
+using DB.Modules.Auction.Command;
 
 using MediatR;
 
@@ -12,17 +13,24 @@ namespace DB.Modules.Auction.Queries
         public class Request : IRequest<Response>
         {
             public int AuctionId { get; set; }
+            public int UserId { get; set; }
 
         }
 
+
+
         public class Response
         {
+            public int AuctionId { get; set; }
             public decimal? PriceAuction { get; set; }
             public decimal? PriceInstant { get; set; }
             public decimal? PriceAuctionStart { get; set; }
             public string Title { get; set; } = "";
             public string Description { get; set; } = "";
             public DB.Domain.Entities.AuctionType AuctionType { get; set; }
+
+            public int OwnerId { get; set; }
+            public string OwnerUsername { get; set; }
 
             public DateTime AuctionStarted { get; set; }
 
@@ -34,23 +42,32 @@ namespace DB.Modules.Auction.Queries
 
 
             public List<Offer> Offers { get; set; } = new();
+
+            public IBaseRequest BuyNowOption { get; set; }
+
+            public IBaseRequest AuctionOfferOption { get; set; }
         }
 
-        private class LoginHandler : IRequestHandler<Request, Response>
+        private class Handler : IRequestHandler<Request, Response>
         {
             private readonly AppDbContext _dbContext;
-            public LoginHandler(AppDbContext dbContext)
+            public Handler(AppDbContext dbContext)
             {
                 _dbContext = dbContext;
             }
             public async Task<Response> Handle(Request request, CancellationToken cancellationToken)
             {
-                return (await _dbContext.Auctions
+                var item = (await _dbContext.Auctions
+                     .AsNoTracking()
                      .Where(x => x.Id == request.AuctionId)
                      .Select(x => new Response()
                      {
+                         AuctionId = x.Id,
                          AuctionFinish = x.AuctionFinish,
                          AuctionStarted = x.AuctionStart,
+                         OwnerUsername = x.User.Username,
+                         OwnerId = x.User.Id,
+
 
                          PriceAuctionStart = x.IsAuction ? x.PriceAuctionStart : null,
                          PriceAuction = x.IsAuction
@@ -86,7 +103,8 @@ namespace DB.Modules.Auction.Queries
                              Date = y.Date,
                              Id = y.Id,
                              PriceAuction = y.PriceAuction,
-                             PriceInstant = y.PriceInstant
+                             PriceInstant = y.PriceInstant,
+                             UserName = y.User.Username
 
                          }).ToList()
 
@@ -95,7 +113,28 @@ namespace DB.Modules.Auction.Queries
 
                      }).ToListAsync()).First();
 
+                if (request.UserId != item.OwnerId && item.Statuses.FirstOrDefault(x => x.Type == Domain.Entities.AuctionStatusType.Finished) == null)
+                {
+                    if (DB.SD.AuctionSD.IsInstantBuy(item.AuctionType))
+                    {
+                        item.BuyNowOption = new BuyNow.Request()
+                        {
+                            AuctionId = item.AuctionId,
+                            UserId = request.UserId
+                        };
+                    }
+                    if (DB.SD.AuctionSD.IsAuction(item.AuctionType))
+                    {
+                        item.AuctionOfferOption = new MakeOffer.Request()
+                        {
+                            Price = 0,
+                            AuctionId = item.AuctionId,
+                            UserId = request.UserId
+                        };
+                    }
+                }
 
+                return item;
             }
         }
 

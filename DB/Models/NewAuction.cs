@@ -16,9 +16,7 @@
         {
             get
             {
-                return AuctionType == DB.Domain.Entities.AuctionType.Instant ||
-                       AuctionType == DB.Domain.Entities.AuctionType.Days_7_With_Instant ||
-                       AuctionType == DB.Domain.Entities.AuctionType.Days_14_With_Instant;
+                return SD.AuctionSD.IsInstantBuy(AuctionType);
             }
             set { }
         }
@@ -27,11 +25,7 @@
         {
             get
             {
-                return AuctionType == DB.Domain.Entities.AuctionType.Auction ||
-                       AuctionType == DB.Domain.Entities.AuctionType.Days_7_With_Instant ||
-                       AuctionType == DB.Domain.Entities.AuctionType.Days_14_With_Instant ||
-                       AuctionType == DB.Domain.Entities.AuctionType.Days_14 ||
-                       AuctionType == DB.Domain.Entities.AuctionType.Days_7;
+                return SD.AuctionSD.IsInstantBuy(AuctionType);
             }
             set { }
         }
@@ -49,6 +43,7 @@
         public int Id { get; set; }
         public int UserId { get; set; }
         public int AuctionId { get; set; }
+        public string UserName { get; set; } = "";
         public decimal? PriceInstant { get; set; }
         public decimal? PriceAuction { get; set; }
         public DateTime Date { get; set; }

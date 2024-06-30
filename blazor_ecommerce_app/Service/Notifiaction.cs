@@ -2,6 +2,7 @@
 {
     public class ToastOption
     {
+        public Exception Exception { get; set; }
         public string Content { get; set; }
         public ToastType Type { get; set; }
         public string css { get { return ToastService.DajKlaseCss(Type); } private set { } }
@@ -20,6 +21,10 @@
         public event Action<ToastOption> ShowToastTrigger;
         public void ShowToast(ToastOption options)
         {
+            if (options.Exception is FluentValidation.ValidationException exception)
+            {
+                options.Content = string.Join("<br/>", exception.Errors);
+            }
             this.ShowToastTrigger.Invoke(options);
         }
 

@@ -23,6 +23,7 @@
     <PackageReference Include="Syncfusion.Blazor.DataForm" Version="26.1.38" />
     <PackageReference Include="Syncfusion.Blazor.Inputs" Version="26.1.38" />
     <PackageReference Include="Syncfusion.Blazor.Notifications" Version="26.1.38" />
+    <PackageReference Include="Syncfusion.Blazor.Popups" Version="26.1.38" />
     <PackageReference Include="Syncfusion.Blazor.RichTextEditor" Version="26.1.38" />
     <PackageReference Include="Syncfusion.Blazor.Spinner" Version="26.1.38" />
     <PackageReference Include="Syncfusion.Blazor.Themes" Version="26.1.38" />

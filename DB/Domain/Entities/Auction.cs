@@ -8,9 +8,7 @@ namespace DB.Domain.Entities
 {
     public enum AuctionType
     {
-        [Display(Name = "Auction")]
-        Auction = 0,
-        [Display(Name = "Instant auction")]
+        [Display(Name = "Instant buy")]
         Instant = 1,
         [Display(Name = "14 days auction")]
         Days_14 = 2,
@@ -44,9 +42,7 @@ namespace DB.Domain.Entities
         {
             get
             {
-                return Type == AuctionType.Instant ||
-                    Type == AuctionType.Days_7_With_Instant ||
-                    Type == AuctionType.Days_14_With_Instant;
+                return DB.SD.AuctionSD.IsInstantBuy(Type);
             }
         }
 
@@ -55,11 +51,7 @@ namespace DB.Domain.Entities
         {
             get
             {
-                return Type == AuctionType.Auction ||
-                    Type == AuctionType.Days_7_With_Instant ||
-                    Type == AuctionType.Days_14_With_Instant ||
-                    Type == AuctionType.Days_14 ||
-                    Type == AuctionType.Days_7;
+                return DB.SD.AuctionSD.IsAuction(Type);
             }
         }
 
