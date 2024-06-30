@@ -19,11 +19,15 @@ namespace DB.Domain.Entities
         [Display(Name = "14 days auction with instant buy")]
         Days_14_With_Instant = 5
     }
+
     public class Auction
     {
         public int Id { get; set; }
 
         public int UserId { get; set; }
+        [ForeignKey("UserId")]
+        public User User { get; set; }
+
         public string Title { get; set; } = "";
         public string Description { get; set; } = "";
         public AuctionType Type { get; set; }
@@ -32,7 +36,9 @@ namespace DB.Domain.Entities
 
         public decimal PriceInstant { get; set; }
         public decimal PriceAuctionStart { get; set; }
-
+        public int? BuyerId { get; set; }
+        [ForeignKey("BuyerId")]
+        public User? Buyer { get; set; }
 
         public DateTime AuctionFinish { get; set; }
         public DateTime AuctionStart { get; set; }
@@ -55,20 +61,30 @@ namespace DB.Domain.Entities
             }
         }
 
-        public User User { get; set; }
         public ICollection<AuctionAttachment> Attachments { get; set; }
         public ICollection<AuctionStatus> Status { get; set; }
         public ICollection<AuctionOffers> Offers { get; set; }
+    }
 
-
+    public class AuctionConfiguration : IEntityTypeConfiguration<Auction>
+    {
         public void Configure(EntityTypeBuilder<Auction> builder)
         {
             builder.HasKey(x => x.Id);
 
-            builder.HasOne(x => x.User)
-          .WithMany(x => x.Auctions)
-          .HasForeignKey(x => x.UserId)
-          .OnDelete(DeleteBehavior.Restrict);
+
+
+            builder.Property(x => x.Title)
+                .IsRequired()
+                .HasMaxLength(255);
+
+            builder.Property(x => x.Description)
+                .IsRequired()
+                .HasMaxLength(1000);
+
+            builder.Property(x => x.AuctionGuid)
+                .IsRequired()
+                .HasMaxLength(36);
         }
     }
 }

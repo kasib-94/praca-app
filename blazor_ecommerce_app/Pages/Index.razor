@@ -1,9 +1,109 @@
 ﻿@page "/"
+@using Syncfusion.Blazor.Grids;
+@using DB.Modules.Auction.Queries;
+@using Syncfusion.Blazor.Popups;
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject NavigationManager uriHelper;
 
-<PageTitle>Index</PageTitle>
+<SfGrid DataSource="@Model" AllowPaging="true">
+    <GridPageSettings PageSize="5"></GridPageSettings>
+    <GridColumns>
+        <GridColumn Field=@nameof(GetListOfAuctions.Response.Minature) HeaderText="Miniature" Width="130">
+            <Template>
+                @{
+                    var auction = (context as GetListOfAuctions.Response);
+                }
 
-<h1>Hello, world!</h1>
+                <div class="card h-100">
+                    <img style="height:100px;width:100px"
+                         class="card-img-top" src="@(DB.SD.ImageHelper.GetImageDataUrl(auction.Minature, auction.Extension))" alt="Zdjęcie" />
+                </div>
 
-Welcome to your new app.
+            </Template>
+        </GridColumn>
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+        <GridColumn Field=@nameof(GetListOfAuctions.Response.Title) HeaderText="Title" Width="130"></GridColumn>
+
+        <GridColumn Field=@nameof(GetListOfAuctions.Response.AuctionType) HeaderText="Type" TextAlign="TextAlign.Center" Width="160">
+
+            <Template>
+                @{
+                    var auction = (context as GetListOfAuctions.Response);
+                }
+                @DB.SD.EnumHelper.GetDisplayName(auction.AuctionType)
+            </Template>
+        </GridColumn>
+
+        <GridColumn Field=@nameof(GetListOfAuctions.Response.AuctionType) HeaderText="Time left" TextAlign="TextAlign.Center" Width="160">
+
+            <Template>
+                @{
+                    var auction = context as GetListOfAuctions.Response;
+                    var timeLeft = auction.DateFinish - DateTime.Now;
+                    int days = (int)timeLeft.TotalDays;
+                    int hours = timeLeft.Hours;
+                    int minutes = timeLeft.Minutes;
+                }
+
+                <div>Time left: @(days + "d" + hours + "h" + minutes + "m")</div>
+            </Template>
+        </GridColumn>
+
+
+        <GridColumn Field=@nameof(GetListOfAuctions.Response.AuctionType) HeaderText="Seller" TextAlign="TextAlign.Center" Width="160">
+
+            <Template>
+                @{
+                    var auction = (context as GetListOfAuctions.Response);
+                }
+                <span @onclick='()=>{uriHelper.NavigateTo("/user/"+auction.OwnerId,forceLoad:true);}'><u> @auction.OwnerName</u> <i class="fas fa-search"></i></span>
+            </Template>
+        </GridColumn>
+        <GridColumn HeaderText="Actions" Width="200">
+            <Template>
+                @{
+                    var auction = (context as GetListOfAuctions.Response);
+                }
+                <Syncfusion.Blazor.Buttons.SfButton OnClick="() =>{ uriHelper.NavigateTo(auctionPath+auction.Id, forceLoad : true);}">See auction</Syncfusion.Blazor.Buttons.SfButton>
+            </Template>
+        </GridColumn>
+    </GridColumns>
+
+</SfGrid>
+
+@code {
+    public string auctionPath = "/auctionview/";
+
+    [CascadingParameter]
+    public AuthModel Auth
+    {
+        get; set;
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await FetchData();
+        }
+
+    }
+
+    public List<DB.Modules.Auction.Queries.GetListOfAuctions.Response> Model { get; set; }
+
+    public async Task FetchData()
+    {
+
+        if (Auth == null)
+        {
+            Auth = await localStorage.GetItemAsync<AuthModel>("auth_token");
+        }
+        Model = await Mediator.Send(new DB.Modules.Auction.Queries.GetListOfAuctions.Request()
+        {
+
+
+        });
+        StateHasChanged();
+    }
+
+
+}

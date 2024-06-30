@@ -23,6 +23,17 @@ namespace DB.Domain
 
             foreach (var fk in cascadeFKs)
                 fk.DeleteBehavior = DeleteBehavior.Restrict;
+
+            modelBuilder.Entity<Auction>()
+      .HasOne(a => a.User)
+      .WithMany(a => a.Auctions)
+      .HasForeignKey(a => a.UserId);
+
+            modelBuilder.Entity<Auction>()
+      .HasOne(a => a.Buyer)
+      .WithMany(a => a.BoughtAuctions)
+      .HasForeignKey(a => a.BuyerId);
+
             base.OnModelCreating(modelBuilder);
         }
 

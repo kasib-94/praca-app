@@ -95,7 +95,11 @@
                 @if (DB.SD.AuctionSD.IsAuction(Model.AuctionType))
                 {
                     <div class="card-body col-lg-4">
-                        <h4 class="card-title">Current offers</h4>
+                        @if (Model.Offers.Any())
+                        {
+                            <h4 class="card-title">Current offers</h4>
+                        }
+                     
                         <div class="column">
                             @{
                                 bool isFirst = true; 
@@ -237,5 +241,10 @@
                     Type = Service.Notification.ToastType.warning,
                 });
         }
+
+
+
     }
+
+    
 }

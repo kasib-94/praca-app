@@ -3,11 +3,10 @@ using DB.Domain.Entities;
 
 using MediatR;
 
-using Microsoft.EntityFrameworkCore;
-
 namespace DB.Modules.Auction.Command
 {
-    public class BuyNow
+
+    public class FinishMyAuction
     {
         public class Request : IRequest
         {
@@ -25,35 +24,17 @@ namespace DB.Modules.Auction.Command
             public async Task Handle(Request request, CancellationToken cancellationToken)
             {
 
-                var item = await _dbContext.Auctions
-                    .FirstAsync(x => x.Id == request.AuctionId);
-
-                var nowDate = DateTime.Now;
+                var auction = _dbContext.Auctions.First(x => x.Id == request.AuctionId);
 
                 var status = new AuctionStatus()
                 {
-                    ActionDate = nowDate,
-                    AuctionId = request.AuctionId,
                     Type = AuctionStatusType.Finished,
-
-                };
-
-                var offer = new AuctionOffers()
-                {
-                    Date = nowDate,
+                    ActionDate = DateTime.Now,
                     AuctionId = request.AuctionId,
-                    UserId = request.UserId,
-                    PriceInstant = item.PriceInstant,
-
                 };
 
-                item.BuyerId = request.UserId;
-
-                _dbContext.AuctionOffers.Add(offer);
                 _dbContext.AuctionStatuses.Add(status);
                 await _dbContext.SaveChangesAsync(cancellationToken);
-
-
             }
         }
 

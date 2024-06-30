@@ -1,0 +1,240 @@
+﻿@page "/myprofile";
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@using Syncfusion.Blazor.Grids;
+@using DB.Modules.Auction.Queries;
+@using DB.Modules.Auction.Command;
+@using Syncfusion.Blazor.Popups;
+@inject NavigationManager uriHelper;
+
+
+@if (UserModel != null)
+{
+    <div class="card mx-auto col-6">
+        <div class="card-header">
+            <h5 class="card-title">
+                <img src="/img/login.jpg" style="max-height:4rem" />
+            </h5>
+        </div>
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-5">ID:</dt>
+                <dd class="col-sm-7">@UserModel.Id</dd>
+
+                <dt class="col-sm-5">User Name:</dt>
+                <dd class="col-sm-7">@UserModel.UserName</dd>
+
+                <dt class="col-sm-5">Email:</dt>
+                <dd class="col-sm-7">@UserModel.Email</dd>
+
+                <dt class="col-sm-5">Active Auctions:</dt>
+                <dd class="col-sm-7">@UserModel.AuctionsActive</dd>
+
+                <dt class="col-sm-5">Auctions Sold:</dt>
+                <dd class="col-sm-7">@UserModel.AuctionsSold</dd>
+
+                <dt class="col-sm-5">Auctions Not Sold:</dt>
+                <dd class="col-sm-7">@UserModel.AuctionsNotSold</dd>
+            </dl>
+        </div>
+    </div>
+}
+
+<div class="container col-10 mx-auto">
+    <div class="card" >
+        <div class="card-body">
+            <h5 class="card-title">My active auctions</h5>
+       <SfGrid DataSource="@Model" AllowPaging="true">
+ <GridPageSettings PageSize="5"></GridPageSettings>
+   <GridColumns>
+                    <GridColumn Field=@nameof(GetMyAuctions.Response.Minature) HeaderText="Miniature" Width="130">
+            <Template>
+               @{
+                                var auction = (context as GetMyAuctions.Response);
+               }
+            
+                    <div class="card h-100">
+                        <img 
+                            style="height:100px;width:100px"
+                            class="card-img-top" src="@(DB.SD.ImageHelper.GetImageDataUrl(auction.Minature, auction.Extension))" alt="Zdjęcie" />
+                    </div>
+             
+            </Template>
+        </GridColumn>
+
+                    <GridColumn Field=@nameof(GetMyAuctions.Response.Title) HeaderText="Title" Width="130"></GridColumn>
+
+                    <GridColumn Field=@nameof(GetMyAuctions.Response.AuctionType) HeaderText="Type" TextAlign="TextAlign.Center" Width="130">
+
+            <Template>
+                @{
+                                var auction = (context as GetMyAuctions.Response);
+                }
+               @DB.SD.EnumHelper.GetDisplayName(auction.AuctionType)
+            </Template>
+        </GridColumn>
+
+                    <GridColumn Field=@nameof(GetMyAuctions.Response.AuctionType) HeaderText="Time left" TextAlign="TextAlign.Center" Width="130">
+
+            <Template>
+                @{
+                                var auction = context as GetMyAuctions.Response;
+                    var timeLeft = auction.DateFinish - DateTime.Now;
+                    int days = (int)timeLeft.TotalDays;
+                    int hours = timeLeft.Hours;
+                    int minutes = timeLeft.Minutes;
+                }
+
+                <div>Time left: @(days + "d" + hours + "h" + minutes + "m")</div>
+            </Template>
+        </GridColumn>
+
+
+      
+        <GridColumn>
+            <Template>
+            @{
+                                var auction = (context as GetMyAuctions.Response);
+            }
+                    <Syncfusion.Blazor.Buttons.SfButton  OnClick="() =>{ uriHelper.NavigateTo(auctionPath+auction.Id, forceLoad : true);}">See auction</Syncfusion.Blazor.Buttons.SfButton>
+                    <Syncfusion.Blazor.Buttons.SfButton CssClass="btn-danger" OnClick="async() =>{ await FinishAuction(auction.Id) ;}">Finish auction</Syncfusion.Blazor.Buttons.SfButton>
+            </Template>
+        </GridColumn>
+   </GridColumns>
+   
+</SfGrid>
+        </div>
+    </div>
+</div>
+
+<div class="container col-10 mx-auto">
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">My finished auctions</h5>
+            <SfGrid DataSource="@FinishedAuctions" AllowPaging="true">
+                <GridPageSettings PageSize="5"></GridPageSettings>
+                <GridColumns>
+                    <GridColumn Field=@nameof(GetMyFinishedAuctions.Response.Minature) HeaderText="Miniature" Width="130">
+                        <Template>
+                            @{
+                                var auction = (context as GetMyFinishedAuctions.Response);
+                            }
+
+                            <div class="card h-100">
+                                <img style="height:100px;width:100px"
+                                     class="card-img-top" src="@(DB.SD.ImageHelper.GetImageDataUrl(auction.Minature, auction.Extension))" alt="Zdjęcie" />
+                            </div>
+
+                        </Template>
+                    </GridColumn>
+
+                    <GridColumn Field=@nameof(GetMyFinishedAuctions.Response.Title) HeaderText="Title" Width="130"></GridColumn>
+
+                    <GridColumn Field=@nameof(GetMyFinishedAuctions.Response.AuctionType) HeaderText="Type" TextAlign="TextAlign.Center" Width="130">
+
+                        <Template>
+                            @{
+                                var auction = (context as GetMyFinishedAuctions.Response);
+                            }
+                            @DB.SD.EnumHelper.GetDisplayName(auction.AuctionType)
+                        </Template>
+                    </GridColumn>
+
+                    <GridColumn Field=@nameof(GetMyFinishedAuctions.Response.AuctionType) HeaderText="Auction result" TextAlign="TextAlign.Center" Width="130">
+
+                        <Template>
+                            @{
+                                var auction = context as GetMyFinishedAuctions.Response;
+                                string s = "Auction finished at " + auction.DateFinish.ToString(DB.SD.SD.DateTimeFullFormat) + " by ";
+                                string buyer = "";
+                                @if (auction.BuyerId == null)
+                                {
+                                    s+="owner ";
+                                }
+                                else
+                                {
+                                    s += auction.BuyerName;
+                                }
+                            }
+                           
+                         <div>
+                             @s 
+                             @if (auction.BuyerId != null)
+                                {
+                                    <span class="badge badge-info" @onclick='()=>{uriHelper.NavigateTo("/user/"+auction.BuyerId,forceLoad:true);}'> </span>
+                                }
+</div>                                
+                              
+                               
+                        </Template>
+                    </GridColumn>
+
+
+
+                    <GridColumn>
+                        <Template>
+                            @{
+                                var auction = (context as GetMyFinishedAuctions.Response);
+                            }
+                            <Syncfusion.Blazor.Buttons.SfButton OnClick="() =>{ uriHelper.NavigateTo(auctionPath+auction.Id, forceLoad : true);}">See auction</Syncfusion.Blazor.Buttons.SfButton>
+                            <Syncfusion.Blazor.Buttons.SfButton CssClass="btn-danger" OnClick="async() =>{ await FinishAuction(auction.Id) ;}">Finish auction</Syncfusion.Blazor.Buttons.SfButton>
+                        </Template>
+                    </GridColumn>
+                </GridColumns>
+
+            </SfGrid>
+        </div>
+    </div>
+</div>
+
+@code {
+    [CascadingParameter]
+    public AuthModel Auth
+    {
+        get; set;
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await FetchData();
+        }
+
+    }
+    public string auctionPath = "/auctionview/";
+    public List<DB.Modules.Auction.Queries.GetMyAuctions.Response> Model { get; set; }
+    public List<DB.Modules.Auction.Queries.GetMyFinishedAuctions.Response> FinishedAuctions { get; set; }
+    public DB.Modules.Authentication.GiveUserInfo.Response UserModel { get; set; }
+    public async Task FetchData()
+    {
+
+
+        if (Auth == null)
+        {
+            Auth = await localStorage.GetItemAsync<AuthModel>("auth_token");
+        }
+        Model = await Mediator.Send(new DB.Modules.Auction.Queries.GetMyAuctions.Request()
+        {
+            UserId = Auth.Id
+        });
+        FinishedAuctions = await Mediator.Send(new DB.Modules.Auction.Queries.GetMyFinishedAuctions.Request()
+            {
+                UserId = Auth.Id
+            });
+
+        UserModel = await Mediator.Send(new DB.Modules.Authentication.GiveUserInfo.Request()
+            {
+                UserId = Auth.Id
+            });
+        StateHasChanged();
+    }
+
+    public async Task FinishAuction(int auctionId)
+    {
+      await  Mediator.Send(new FinishMyAuction.Request()
+            {
+                UserId = Auth.Id,
+                AuctionId = auctionId
+            });
+          await  FetchData();
+    }
+}

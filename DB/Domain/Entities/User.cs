@@ -14,12 +14,22 @@ namespace DB.Domain.Entities
         public ICollection<Auction> Auctions { get; set; }
         public ICollection<AuctionOffers> AuctionOffers { get; set; }
 
+        public ICollection<Auction> BoughtAuctions { get; set; }
+
 
 
 
         public void Configure(EntityTypeBuilder<User> builder)
         {
             builder.HasKey(x => x.Id);
+
+            builder.HasMany(x => x.Auctions)
+                .WithOne(x => x.User)
+                .HasForeignKey(x => x.UserId);
+
+            builder.HasMany(x => x.BoughtAuctions)
+           .WithOne(x => x.Buyer)
+           .HasForeignKey(x => x.BuyerId);
         }
     }
 }

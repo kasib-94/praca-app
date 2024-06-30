@@ -9,11 +9,11 @@ using Microsoft.EntityFrameworkCore;
 namespace DB.Modules.Auction.Queries
 {
 
-    public class GetListOfAuctions
+    public class GetMyFinishedAuctions
     {
         public class Request : IRequest<List<Response>>
         {
-
+            public int UserId { get; set; }
         }
 
         public class Response
@@ -24,11 +24,10 @@ namespace DB.Modules.Auction.Queries
 
             public string? Extension { get; set; }
 
-            public string OwnerName { get; set; }
-            public int OwnerId { get; set; }
+            public string? BuyerName { get; set; }
+            public int? BuyerId { get; set; }
             public DateTime DateFinish { get; set; }
 
-            public DateTime DateStarted { get; set; }
             public DB.Domain.Entities.AuctionType AuctionType { get; set; }
         }
         private class Handler : IRequestHandler<Request, List<Response>>
@@ -44,7 +43,8 @@ namespace DB.Modules.Auction.Queries
             {
                 return await _dbContext.Auctions
                       .AsNoTracking()
-                      .Where(x => x.Status.Any(x => x.Type == Domain.Entities.AuctionStatusType.Finished) == false)
+                      .Where(x => x.Status.Any(x => x.Type == Domain.Entities.AuctionStatusType.Finished)
+                            && x.UserId == request.UserId)
                       .Select(x => new Response()
                       {
                           Minature = x.Attachments.Any()
@@ -57,11 +57,16 @@ namespace DB.Modules.Auction.Queries
 
                           Title = x.Title,
                           Id = x.Id,
-                          OwnerName = x.User.Username,
-                          OwnerId = x.User.Id,
-                          DateFinish = x.AuctionFinish,
-                          DateStarted = x.AuctionStart,
-                          AuctionType = x.Type
+                          DateFinish = x.Status.First(y => y.Type == Domain.Entities.AuctionStatusType.Finished).ActionDate,
+                          AuctionType = x.Type,
+                          BuyerName = x.Buyer == null
+                                    ? null
+                                    : x.Buyer.Username,
+                          BuyerId = x.Buyer == null
+                                    ? null
+                                    : x.Buyer.Id
+
+
 
 
                       })

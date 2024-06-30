@@ -18,8 +18,27 @@ namespace DB.SD
         public string Name { get; set; }
     }
 
+    public static class ImageHelper
+    {
+        public static string GetImageDataUrl(byte[] imageData, string extension)
+        {
+            string base64Image = Convert.ToBase64String(imageData);
+            return $"data:image/{extension};base64,{base64Image}";
+        }
+    }
+
     public static class EnumHelper
     {
+
+        public static string GetDisplayName(this Enum enumValue)
+        {
+            return enumValue.GetType()
+                            .GetMember(enumValue.ToString())
+                            .First()
+                            .GetCustomAttribute<DisplayAttribute>()
+                            ?.GetName() ?? enumValue.ToString();
+        }
+
         public static List<DropDownModel> GetEnumDisplayNames<T>() where T : Enum
         {
             var type = typeof(T);

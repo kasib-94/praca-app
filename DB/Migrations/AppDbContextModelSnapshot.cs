@@ -40,6 +40,9 @@ namespace DB.Migrations
                     b.Property<DateTime>("AuctionStart")
                         .HasColumnType("datetime2");
 
+                    b.Property<int?>("BuyerId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -61,6 +64,8 @@ namespace DB.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("BuyerId");
 
                     b.HasIndex("UserId");
 
@@ -185,11 +190,17 @@ namespace DB.Migrations
 
             modelBuilder.Entity("DB.Domain.Entities.Auction", b =>
                 {
+                    b.HasOne("DB.Domain.Entities.User", "Buyer")
+                        .WithMany("BoughtAuctions")
+                        .HasForeignKey("BuyerId");
+
                     b.HasOne("DB.Domain.Entities.User", "User")
                         .WithMany("Auctions")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Buyer");
 
                     b.Navigation("User");
                 });
@@ -249,6 +260,8 @@ namespace DB.Migrations
                     b.Navigation("AuctionOffers");
 
                     b.Navigation("Auctions");
+
+                    b.Navigation("BoughtAuctions");
                 });
 #pragma warning restore 612, 618
         }

@@ -23,6 +23,8 @@ namespace DB.Domain.Entities
         public Auction Auction { get; set; }
 
 
+
+
         public void Configure(EntityTypeBuilder<AuctionStatus> builder)
         {
             builder.HasKey(x => x.Id);
@@ -31,6 +33,8 @@ namespace DB.Domain.Entities
                 .WithMany(x => x.Status)
                 .HasForeignKey(x => x.AuctionId)
                                 .OnDelete(DeleteBehavior.Restrict);
+
+
 
         }
     }

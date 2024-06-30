@@ -38,6 +38,7 @@ namespace DB.Migrations
                     AuctionGuid = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     PriceInstant = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     PriceAuctionStart = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    BuyerId = table.Column<int>(type: "int", nullable: true),
                     AuctionFinish = table.Column<DateTime>(type: "datetime2", nullable: false),
                     AuctionStart = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
@@ -45,11 +46,16 @@ namespace DB.Migrations
                 {
                     table.PrimaryKey("PK_Auctions", x => x.Id);
                     table.ForeignKey(
+                        name: "FK_Auctions_Users_BuyerId",
+                        column: x => x.BuyerId,
+                        principalTable: "Users",
+                        principalColumn: "Id");
+                    table.ForeignKey(
                         name: "FK_Auctions_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -139,6 +145,11 @@ namespace DB.Migrations
                 name: "IX_AuctionOffers_UserId",
                 table: "AuctionOffers",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Auctions_BuyerId",
+                table: "Auctions",
+                column: "BuyerId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Auctions_UserId",

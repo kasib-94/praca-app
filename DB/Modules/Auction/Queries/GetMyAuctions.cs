@@ -9,11 +9,11 @@ using Microsoft.EntityFrameworkCore;
 namespace DB.Modules.Auction.Queries
 {
 
-    public class GetListOfAuctions
+    public class GetMyAuctions
     {
         public class Request : IRequest<List<Response>>
         {
-
+            public int UserId { get; set; }
         }
 
         public class Response
@@ -24,8 +24,6 @@ namespace DB.Modules.Auction.Queries
 
             public string? Extension { get; set; }
 
-            public string OwnerName { get; set; }
-            public int OwnerId { get; set; }
             public DateTime DateFinish { get; set; }
 
             public DateTime DateStarted { get; set; }
@@ -44,7 +42,9 @@ namespace DB.Modules.Auction.Queries
             {
                 return await _dbContext.Auctions
                       .AsNoTracking()
-                      .Where(x => x.Status.Any(x => x.Type == Domain.Entities.AuctionStatusType.Finished) == false)
+                      .Where(x =>
+                      x.UserId == request.UserId &&
+                      x.Status.Any(x => x.Type == Domain.Entities.AuctionStatusType.Finished) == false)
                       .Select(x => new Response()
                       {
                           Minature = x.Attachments.Any()
@@ -57,8 +57,6 @@ namespace DB.Modules.Auction.Queries
 
                           Title = x.Title,
                           Id = x.Id,
-                          OwnerName = x.User.Username,
-                          OwnerId = x.User.Id,
                           DateFinish = x.AuctionFinish,
                           DateStarted = x.AuctionStart,
                           AuctionType = x.Type

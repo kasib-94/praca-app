@@ -37,10 +37,10 @@ namespace DB.Modules.Auction.Command
                 DateTime auctionStart = DateTime.Now;
                 DateTime auctionFinish = DateTime.Now;
                 if (request.Type == AuctionType.Days_14 || request.Type == AuctionType.Days_14_With_Instant)
-                    auctionFinish.AddDays(14);
+                    auctionFinish = auctionFinish.AddDays(14);
 
                 if (request.Type == AuctionType.Days_7 || request.Type == AuctionType.Days_7_With_Instant)
-                    auctionFinish.AddDays(7);
+                    auctionFinish = auctionFinish.AddDays(7);
 
                 var auction = new DB.Domain.Entities.Auction()
                 {
