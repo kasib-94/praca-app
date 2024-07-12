@@ -83,6 +83,11 @@ namespace DB.Modules.Payment.Queries
                     _dbContext.StripeSessions.Add(sessionEntity);
                     await _dbContext.SaveChangesAsync();
 
+
+                    stripeSessionDto.StripeSessionUrl = session.Url;
+                    stripeSessionDto.StripeSessionId = session.Id;
+
+
                 }
                 catch (Exception ex)
                 {

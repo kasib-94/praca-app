@@ -47,7 +47,6 @@ namespace DB.Modules.Auction.Queries
                       .Include(x => x.Attachments)
                       .Include(x => x.Status)
                       .Include(x => x.User)
-                      .AsNoTracking()
                       .Where(x => x.Status.Any(x => x.Type == Domain.Entities.AuctionStatusType.Finished) == false)
                       .ToListAsync(cancellationToken);
 

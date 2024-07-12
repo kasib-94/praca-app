@@ -3,26 +3,30 @@
 @using DB.Modules.Auction.Queries;
 
 <div class="payment-status-container">
-    @if (StripeStatus == DB.Domain.Entities.StripeStatus.Success)
+    @if (Model != null)
     {
-        <div class="success-message">
-            <h1>Congratulations on Your Purchase!</h1>
-            <p>Thank you for your payment. We hope you enjoy your new item.</p>
-            <p>We recommend our services for future purchases.</p>
-            <h2>@Model.Title</h2>
-            <h3>@Model.Description</h3>
-        </div>
+        @if (StripeStatus == DB.Domain.Entities.StripeStatus.Success)
+        {
+            <div class="success-message">
+                <h1>Congratulations on Your Purchase!</h1>
+                <p>Thank you for your payment. We hope you enjoy your new item.</p>
+                <p>We recommend our services for future purchases.</p>
+                <h2>@Model.Title</h2>
+                <h3>@((MarkupString)Model.Description)</h3>
+            </div>
+        }
+        else
+        {
+            <div class="failure-message">
+                <h1>Payment Failed</h1>
+                <p>Unfortunately, your payment was not successful.</p>
+                <p>Please try again or contact our support for assistance.</p>
+                <h2>@Model.Title</h2>
+                <h3>@((MarkupString)Model.Description)</h3>
+            </div>
+        }
     }
-    else
-    {
-        <div class="failure-message">
-            <h1>Payment Failed</h1>
-            <p>Unfortunately, your payment was not successful.</p>
-            <p>Please try again or contact our support for assistance.</p>
-            <h2>@Model.Title</h2>
-            <h3>@Model.Description</h3>
-        </div>
-    }
+  
 </div>
 
 <style>

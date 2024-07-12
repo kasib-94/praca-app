@@ -48,6 +48,20 @@ namespace DB.Modules.Payment.Commands
                     _dbContext.StripeSessions.Update(item);
                 }
                 await _dbContext.SaveChangesAsync(cancellationToken);
+
+
+                if (wynik == StripeStatus.Success)
+                {
+                    AuctionStatus status = new()
+                    {
+                        AuctionId = request.AuctionId,
+                        ActionDate = DateTime.Now,
+                        Type = AuctionStatusType.PaymentConfirmed
+                    };
+                    _dbContext.AuctionStatuses.Add(status);
+                    await _dbContext.SaveChangesAsync(cancellationToken);
+                }
+
                 return wynik;
 
             }
