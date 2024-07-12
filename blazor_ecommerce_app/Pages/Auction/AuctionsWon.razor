@@ -1,0 +1,96 @@
+﻿@page "/auctionswon";
+@using DB.Modules.Auction.Queries;
+@using Syncfusion.Blazor.Popups;
+@using Syncfusion.Blazor.Grids;
+@inject NavigationManager uriHelper;
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+
+
+<div class="container col-10 mx-auto">
+    <div class="card" >
+        <div class="card-body">
+            <h5 class="card-title">My active auctions</h5>
+       <SfGrid DataSource="@Model" AllowPaging="true">
+ <GridPageSettings PageSize="5"></GridPageSettings>
+   <GridColumns>
+                    <GridColumn Field=@nameof(GetListOfAuctions.Response.Minature) HeaderText="Miniature" Width="130">
+            <Template>
+               @{
+                                var auction = (context as GetListOfAuctions.Response);
+               }
+            
+                    <div class="card h-100">
+                        <img 
+                            style="height:100px;width:100px"
+                            class="card-img-top" src="@(DB.SD.ImageHelper.GetImageDataUrl(auction.Minature, auction.Extension))" alt="Zdjęcie" />
+                    </div>
+             
+            </Template>
+        </GridColumn>
+
+                    <GridColumn Field=@nameof(GetListOfAuctions.Response.Title) HeaderText="Title" Width="150"></GridColumn>
+
+                    <GridColumn Field=@nameof(GetListOfAuctions.Response.AuctionType) HeaderText="Type" TextAlign="TextAlign.Center" Width="150">
+
+            <Template>
+                @{
+                                var auction = (context as GetListOfAuctions.Response);
+                }
+               @DB.SD.EnumHelper.GetDisplayName(auction.AuctionType)
+            </Template>
+        </GridColumn>
+
+                    <GridColumn Field=@nameof(GetListOfAuctions.Response.AuctionType) HeaderText="Time left" TextAlign="TextAlign.Center" Width="150">
+
+            <Template>
+                @{
+                                var auction = context as GetListOfAuctions.Response;
+             
+                }
+
+         
+            </Template>
+        </GridColumn>
+
+
+      
+        <GridColumn Width="170 ">
+            <Template>
+            @{
+                                var auction = (context as GetListOfAuctions.Response);
+            }
+                    <Syncfusion.Blazor.Buttons.SfButton  OnClick="() =>{ uriHelper.NavigateTo(auctionPath+auction.Id, forceLoad : true);}">Pay now</Syncfusion.Blazor.Buttons.SfButton>
+
+            </Template>
+        </GridColumn>
+   </GridColumns>
+   
+</SfGrid>
+        </div>
+    </div>
+</div>
+
+@code {
+    [CascadingParameter]
+    public AuthModel Auth
+    {
+        get; set;
+    }
+
+    public List<GetListOfAuctions.Response> Model { get; set; }
+    public string auctionPath = "/payment/";
+    public async Task FetchData()
+    {
+
+        if (Auth == null)
+        {
+            Auth = await localStorage.GetItemAsync<AuthModel>("auth_token");
+        }
+            Model = await Mediator.Send(new DB.Modules.Auction.Queries.GetAuctionsIWon.Request()
+            {
+                UserId = Auth.Id
+            });
+        StateHasChanged();
+    }
+
+}

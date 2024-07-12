@@ -61,9 +61,9 @@
             </Template>
         </GridColumn>
 
-                    <GridColumn Field=@nameof(GetMyAuctions.Response.Title) HeaderText="Title" Width="130"></GridColumn>
+                    <GridColumn Field=@nameof(GetMyAuctions.Response.Title) HeaderText="Title" Width="150"></GridColumn>
 
-                    <GridColumn Field=@nameof(GetMyAuctions.Response.AuctionType) HeaderText="Type" TextAlign="TextAlign.Center" Width="130">
+                    <GridColumn Field=@nameof(GetMyAuctions.Response.AuctionType) HeaderText="Type" TextAlign="TextAlign.Center" Width="150">
 
             <Template>
                 @{
@@ -73,7 +73,7 @@
             </Template>
         </GridColumn>
 
-                    <GridColumn Field=@nameof(GetMyAuctions.Response.AuctionType) HeaderText="Time left" TextAlign="TextAlign.Center" Width="130">
+                    <GridColumn Field=@nameof(GetMyAuctions.Response.AuctionType) HeaderText="Time left" TextAlign="TextAlign.Center" Width="150">
 
             <Template>
                 @{
@@ -90,7 +90,7 @@
 
 
       
-        <GridColumn>
+        <GridColumn Width="170 ">
             <Template>
             @{
                                 var auction = (context as GetMyAuctions.Response);
@@ -127,9 +127,9 @@
                         </Template>
                     </GridColumn>
 
-                    <GridColumn Field=@nameof(GetMyFinishedAuctions.Response.Title) HeaderText="Title" Width="130"></GridColumn>
+                    <GridColumn Field=@nameof(GetMyFinishedAuctions.Response.Title) HeaderText="Title" Width="170"></GridColumn>
 
-                    <GridColumn Field=@nameof(GetMyFinishedAuctions.Response.AuctionType) HeaderText="Type" TextAlign="TextAlign.Center" Width="130">
+                    <GridColumn Field=@nameof(GetMyFinishedAuctions.Response.AuctionType) HeaderText="Type" TextAlign="TextAlign.Center" Width="170">
 
                         <Template>
                             @{
@@ -139,12 +139,12 @@
                         </Template>
                     </GridColumn>
 
-                    <GridColumn Field=@nameof(GetMyFinishedAuctions.Response.AuctionType) HeaderText="Auction result" TextAlign="TextAlign.Center" Width="130">
+                    <GridColumn Field=@nameof(GetMyFinishedAuctions.Response.AuctionType) HeaderText="Auction result" TextAlign="TextAlign.Center" Width="170">
 
                         <Template>
                             @{
                                 var auction = context as GetMyFinishedAuctions.Response;
-                                string s = "Auction finished at " + auction.DateFinish.ToString(DB.SD.SD.DateTimeFullFormat) + " by ";
+                                string s = "Auction finished at " + auction.DateFinish.ToString(DB.SD.SD.DateTimeFullFormat) + " by "+"<br/>";
                                 string buyer = "";
                                 @if (auction.BuyerId == null)
                                 {
@@ -157,7 +157,7 @@
                             }
                            
                          <div>
-                             @s 
+                             @((MarkupString)s) 
                              @if (auction.BuyerId != null)
                                 {
                                     <span class="badge badge-info" @onclick='()=>{uriHelper.NavigateTo("/user/"+auction.BuyerId,forceLoad:true);}'> </span>
@@ -170,13 +170,12 @@
 
 
 
-                    <GridColumn>
+                    <GridColumn Width="170">
                         <Template>
                             @{
                                 var auction = (context as GetMyFinishedAuctions.Response);
                             }
                             <Syncfusion.Blazor.Buttons.SfButton OnClick="() =>{ uriHelper.NavigateTo(auctionPath+auction.Id, forceLoad : true);}">See auction</Syncfusion.Blazor.Buttons.SfButton>
-                            <Syncfusion.Blazor.Buttons.SfButton CssClass="btn-danger" OnClick="async() =>{ await FinishAuction(auction.Id) ;}">Finish auction</Syncfusion.Blazor.Buttons.SfButton>
                         </Template>
                     </GridColumn>
                 </GridColumns>

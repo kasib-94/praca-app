@@ -8,6 +8,7 @@ namespace DB.Domain.Entities
     {
         Start = 1,
         Finished = 2,
+        PaymentConfirmed = 4
     }
 
 

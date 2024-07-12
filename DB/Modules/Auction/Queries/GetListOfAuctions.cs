@@ -42,30 +42,57 @@ namespace DB.Modules.Auction.Queries
             }
             public async Task<List<Response>> Handle(Request request, CancellationToken cancellationToken)
             {
-                return await _dbContext.Auctions
+                var aukcje = await _dbContext.Auctions
+                      .Include(x => x.Offers)
+                      .Include(x => x.Attachments)
+                      .Include(x => x.Status)
                       .AsNoTracking()
                       .Where(x => x.Status.Any(x => x.Type == Domain.Entities.AuctionStatusType.Finished) == false)
-                      .Select(x => new Response()
-                      {
-                          Minature = x.Attachments.Any()
+                      .ToListAsync(cancellationToken);
+
+                var aukcjeDoUsuniecia = aukcje.Where(x => x.AuctionFinish < DateTime.Now);
+
+                foreach (var aukcja in aukcjeDoUsuniecia)
+                {
+                    if (aukcja.Offers.Any())
+                    {
+                        var najwyzszaOferta = aukcja.Offers.OrderByDescending(x => x.PriceAuction).FirstOrDefault();
+                        aukcja.BuyerId = najwyzszaOferta.UserId;
+                        aukcja.Status.Add(new Domain.Entities.AuctionStatus()
+                        {
+                            AuctionId = aukcja.Id,
+                            Type = Domain.Entities.AuctionStatusType.Finished,
+                            ActionDate = DateTime.Now,
+                        });
+                    }
+                    _dbContext.Auctions.Update(aukcja);
+
+                    await _dbContext.SaveChangesAsync(cancellationToken);
+                }
+
+
+
+
+                return aukcje.Where(x => aukcjeDoUsuniecia.Select(y => y.Id).Contains(x.Id) == false).Select(x => new Response()
+                {
+                    Minature = x.Attachments.Any()
                                       ? x.Attachments.FirstOrDefault().ImageData
                                       : null,
 
-                          Extension = x.Attachments.Any()
+                    Extension = x.Attachments.Any()
                                       ? x.Attachments.FirstOrDefault().Extension
                                       : null,
 
-                          Title = x.Title,
-                          Id = x.Id,
-                          OwnerName = x.User.Username,
-                          OwnerId = x.User.Id,
-                          DateFinish = x.AuctionFinish,
-                          DateStarted = x.AuctionStart,
-                          AuctionType = x.Type
+                    Title = x.Title,
+                    Id = x.Id,
+                    OwnerName = x.User.Username,
+                    OwnerId = x.User.Id,
+                    DateFinish = x.AuctionFinish,
+                    DateStarted = x.AuctionStart,
+                    AuctionType = x.Type
 
 
-                      })
-                      .ToListAsync(cancellationToken);
+                }).ToList();
 
             }
         }
