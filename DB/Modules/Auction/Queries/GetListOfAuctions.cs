@@ -46,6 +46,7 @@ namespace DB.Modules.Auction.Queries
                       .Include(x => x.Offers)
                       .Include(x => x.Attachments)
                       .Include(x => x.Status)
+                      .Include(x => x.User)
                       .AsNoTracking()
                       .Where(x => x.Status.Any(x => x.Type == Domain.Entities.AuctionStatusType.Finished) == false)
                       .ToListAsync(cancellationToken);
@@ -71,7 +72,8 @@ namespace DB.Modules.Auction.Queries
                 }
 
 
-
+                if (aukcje.Any() == false)
+                    return new List<Response>();
 
                 return aukcje.Where(x => aukcjeDoUsuniecia.Select(y => y.Id).Contains(x.Id) == false).Select(x => new Response()
                 {

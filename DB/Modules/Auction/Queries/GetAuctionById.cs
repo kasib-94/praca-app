@@ -70,13 +70,11 @@ namespace DB.Modules.Auction.Queries
 
 
                          PriceAuctionStart = x.IsAuction ? x.PriceAuctionStart : null,
-                         PriceAuction = x.IsAuction
-                           ? (x.Offers.Any(z => z.PriceAuction.HasValue == true)
-                                        ? x.Offers.Max(x => x.PriceAuction) : null)
-                           : null,
-                         PriceInstant = x.IsInstantBuy
-                           ? (x.Offers.Any(z => z.PriceInstant.HasValue == true)
-                                        ? x.Offers.Max(x => x.PriceInstant) : null)
+                         PriceAuction = DB.SD.AuctionSD.IsAuction(x.Type)
+                          ? x.PriceAuctionStart
+                          : null,
+                         PriceInstant = DB.SD.AuctionSD.IsInstantBuy(x.Type)
+                           ? x.PriceInstant
                            : null,
                          Title = x.Title,
                          Description = x.Description,

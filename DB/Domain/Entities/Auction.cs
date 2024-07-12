@@ -43,14 +43,6 @@ namespace DB.Domain.Entities
         public DateTime AuctionFinish { get; set; }
         public DateTime AuctionStart { get; set; }
 
-        [NotMapped]
-        public bool IsInstantBuy
-        {
-            get
-            {
-                return DB.SD.AuctionSD.IsInstantBuy(Type);
-            }
-        }
 
         [NotMapped]
         public bool IsAuction

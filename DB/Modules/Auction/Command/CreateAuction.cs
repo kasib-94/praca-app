@@ -39,7 +39,7 @@ namespace DB.Modules.Auction.Command
                 if (request.Type == AuctionType.Days_14 || request.Type == AuctionType.Days_14_With_Instant)
                     auctionFinish = auctionFinish.AddDays(14);
 
-                if (request.Type == AuctionType.Days_7 || request.Type == AuctionType.Days_7_With_Instant)
+                if (request.Type == AuctionType.Days_7 || request.Type == AuctionType.Days_7_With_Instant || request.Type == AuctionType.Instant)
                     auctionFinish = auctionFinish.AddDays(7);
 
                 var auction = new DB.Domain.Entities.Auction()

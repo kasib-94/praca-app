@@ -1,0 +1,115 @@
+﻿@page "/postaldata/{AuctionId:int}"
+@using Syncfusion.Blazor.DataForm
+@using System.ComponentModel.DataAnnotations
+@using Syncfusion.Blazor.Inputs
+@using Syncfusion.Blazor.Calendars
+@using Syncfusion.Blazor.Buttons
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@if (Model.Confirmed)
+{
+    <div class="col-12">
+        <span class="badge badge-success">Address data is confirmed</span>
+        <SfButton Disabled="@Model.FormEnabled">Confirm address details</SfButton>
+    </div>
+
+}else{
+    <div class="col-12">
+        <span class="badge badge-danger">Confirm address details!</span>
+    </div>
+  
+}
+@if (Model.BrakDostepu == false)
+{
+
+    <SfDataForm ID="MyForm"
+    Model="@Model"
+
+    OnSubmit="ConfirmPostalHandler"
+    ValidationDisplayMode="FormValidationDisplay.Tooltip">
+
+        <FormValidator>
+            <DataAnnotationsValidator></DataAnnotationsValidator>
+        </FormValidator>
+
+        <FormItems>
+
+            <FormItem IsEnabled="@Model.FormEnabled" Field="@nameof(Model.Adress)" Placeholder="Adress" LabelText="Name on card"></FormItem>
+            <FormItem IsEnabled="@Model.FormEnabled" Field="@nameof(Model.PostCode)" Placeholder="Post code" LabelText="Card Number"></FormItem>
+            <FormItem IsEnabled="@Model.FormEnabled" Field="@nameof(Model.PhoneNumber)" Placeholder="Post code" LabelText="Card Number"></FormItem>
+
+        </FormItems>
+        <FormButtons>
+            <SfButton>Confirm address details</SfButton>
+        </FormButtons>
+
+    </SfDataForm>
+}
+else
+{
+    <span>Brak dostepu!!</span>
+}
+
+
+
+@code {
+
+    [CascadingParameter]
+    public AuthModel Auth
+    {
+        get; set;
+    }
+
+    [Parameter]
+    public int AuctionId { get; set; }
+
+    public DB.Modules.Payment.Queries.GetPostalData.Response Model { get; set; } = new();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await FetchData();
+        }
+
+    }
+
+    public async Task ConfirmPostalHandler(EditContext model)
+    {
+        try
+        {
+            var item = model.Model as DB.Modules.Payment.Queries.GetPostalData.Response;
+            await Mediator.Send(new DB.Modules.Payment.Commands.ConfirmAddressDetails.Request()
+                {
+                     Model = item
+                });
+
+                FetchData();
+                   
+        }
+        catch (Exception ex)
+        {
+            Notifiaction.ShowToast(new Service.Notification.ToastOption()
+                {
+                    Exception = ex,
+                    Type = Service.Notification.ToastType.error
+                });
+        }
+    }
+
+    public async Task FetchData()
+    {
+
+        if (Auth == null)
+        {
+            Auth = await localStorage.GetItemAsync<AuthModel>("auth_token");
+        }
+        Model = await Mediator.Send(new DB.Modules.Payment.Queries.GetPostalData.Request()
+            {
+                AuctionId = AuctionId,
+                UserId = Auth.Id
+
+            });
+        StateHasChanged();
+    }
+
+}

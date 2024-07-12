@@ -78,7 +78,16 @@
     }
 
     public List<GetListOfAuctions.Response> Model { get; set; }
-    public string auctionPath = "/payment/";
+    public string auctionPath = "/postaldata/";
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await FetchData();
+        }
+
+    }
     public async Task FetchData()
     {
 
