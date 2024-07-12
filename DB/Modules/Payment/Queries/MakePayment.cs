@@ -42,7 +42,7 @@ namespace DB.Modules.Payment.Queries
                     Stripe.StripeConfiguration.ApiKey = "sk_test_51PbgpxCs4NH2MtqA4UPZY8vWMu1s32lAKZQWCbjxfZtgWbFLF5v7JPqo5UhmQ2IGmUiH7qHZXhN5ajvStlLIlr8E000nKghW8M";
                     var options = new Stripe.Checkout.SessionCreateOptions
                     {
-                        CancelUrl = "https://localhost:7001/paymentrejected/" + auction.Id,
+                        CancelUrl = "https://localhost:7001/successpayment/" + auction.Id,
                         SuccessUrl = "https://localhost:7001/successpayment/" + auction.Id,
                         Mode = "payment",
                         LineItems = new List<Stripe.Checkout.SessionLineItemOptions>()
