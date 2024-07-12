@@ -5,6 +5,7 @@
 @using Syncfusion.Blazor.Calendars
 @using Syncfusion.Blazor.Buttons
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject NavigationManager navManager
 @if (Model.Confirmed)
 {
     <div class="col-12">
@@ -126,9 +127,26 @@ else
                 });
         }
     }
-    public void CreateStripeSession()
+    public async void CreateStripeSession()
     {
-        
+        try
+        {
+            var result = await Mediator.Send(new DB.Modules.Payment.Queries.MakePayment.Request()
+                {
+                    AuctionId = Model.AuctionId
+                });
+            navManager.NavigateTo(result.StripeSessionUrl);  
+        }
+        catch (Exception ex)
+        {
+            Notifiaction.ShowToast(new Service.Notification.ToastOption()
+                {
+                    Exception = ex,
+                    Type = Service.Notification.ToastType.error
+                });
+        }
+       
+   
     }
 
     public async Task FetchData()

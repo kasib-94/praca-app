@@ -1,60 +1,96 @@
 ﻿using DB.Domain;
+using DB.Domain.Entities;
+using DB.Models;
 
 using MediatR;
+
+using Microsoft.EntityFrameworkCore;
+
+using Stripe.Checkout;
 
 namespace DB.Modules.Payment.Queries
 {
 
     public class MakePayment
     {
-        public class Request : IRequest
+        public class Request : IRequest<StripeSessionDto>
         {
             public int AuctionId { get; set; }
 
         }
 
-        private class Handler : IRequestHandler<Request>
+        private class Handler : IRequestHandler<Request, StripeSessionDto>
         {
             private readonly AppDbContext _dbContext;
             public Handler(AppDbContext dbContext)
             {
                 _dbContext = dbContext;
             }
-            public async Task Handle(Request request, CancellationToken cancellationToken)
+
+
+
+            public async Task<StripeSessionDto> Handle(Request request, CancellationToken cancellationToken)
             {
 
-                var auction = _dbContext.Auctions.First(x => x.Id == request.AuctionId);
+                var stripeSessionDto = new StripeSessionDto();
+                var auction = _dbContext.Auctions
+                    .Include(x => x.Offers)
+                    .AsNoTracking()
+                    .First(x => x.Id == request.AuctionId);
                 try
                 {
                     Stripe.StripeConfiguration.ApiKey = "sk_test_51PbgpxCs4NH2MtqA4UPZY8vWMu1s32lAKZQWCbjxfZtgWbFLF5v7JPqo5UhmQ2IGmUiH7qHZXhN5ajvStlLIlr8E000nKghW8M";
                     var options = new Stripe.Checkout.SessionCreateOptions
                     {
-                        SuccessUrl = "https://example.com/success",
-                        LineItems = new List<Stripe.Checkout.SessionLineItemOptions>
+                        CancelUrl = "https://localhost:7001/paymentrejected/" + auction.Id,
+                        SuccessUrl = "https://localhost:7001/successpayment/" + auction.Id,
+                        Mode = "payment",
+                        LineItems = new List<Stripe.Checkout.SessionLineItemOptions>()
+
+
+                    };
+                    var item = new Stripe.Checkout.SessionLineItemOptions
                     {
-                        new Stripe.Checkout.SessionLineItemOptions
+                        PriceData = new Stripe.Checkout.SessionLineItemPriceDataOptions()
                         {
+                            UnitAmount = DB.SD.AuctionSD.IsInstantBuy(auction.Type)
+                                        ? (long)auction.PriceInstant
+                                        : (long)auction.Offers.Max(x => x.PriceAuction),
+                            Currency = "pln",
+
+                            ProductData = new Stripe.Checkout.SessionLineItemPriceDataProductDataOptions()
+                            {
+                                Name = auction.Title,
+
+                            }
 
                         },
-                        new Stripe.Checkout.SessionLineItemOptions
-                        {
-                            Price = "price_1MotwRLkdIwHu7ixYcPLm5uZ",
-                            Quantity = 2,
-                        },
-                    },
-                        Mode = "payment",
+                        Quantity = 1,
+
+
                     };
-                    var service = new Stripe.Checkout.SessionService();
-                    service.Create(options);
+                    options.LineItems.Add(item);
+                    var service = new SessionService();
+                    Session session = service.Create(options);
+
+                    var sessionEntity = new StripeSession()
+                    {
+                        AuctionId = request.AuctionId,
+                        SessionId = session.Id,
+                        SessionUrl = session.Url,
+                        StripeStatus = StripeStatus.Pending
+                    };
+                    _dbContext.StripeSessions.Add(sessionEntity);
+                    await _dbContext.SaveChangesAsync();
+
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
 
-                    throw;
+                    throw new Exception(ex.Message);
                 }
+                return stripeSessionDto;
 
-
-                await _dbContext.SaveChangesAsync(cancellationToken);
             }
         }
 

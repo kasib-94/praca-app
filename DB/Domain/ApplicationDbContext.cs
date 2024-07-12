@@ -15,6 +15,7 @@ namespace DB.Domain
         public DbSet<AuctionAttachment> AuctionAttachments { get; set; }
         public DbSet<AuctionStatus> AuctionStatuses { get; set; }
         public DbSet<AuctionOffers> AuctionOffers { get; set; }
+        public DbSet<StripeSession> StripeSessions { get; set; }
         public DbSet<PostalData> PostalData { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
