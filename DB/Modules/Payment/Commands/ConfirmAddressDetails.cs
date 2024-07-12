@@ -35,8 +35,10 @@ namespace DB.Modules.Payment.Commands
                     PostCode = request.Model.PostCode,
                     UserId = request.Model.UserId,
                 };
-                _dbContext.PostalData.Add(entity);
-                _dbContext.SaveChangesAsync(cancellationToken);
+
+                _dbContext.PostalData.Update(entity);
+
+                await _dbContext.SaveChangesAsync(cancellationToken);
             }
         }
 

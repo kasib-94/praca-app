@@ -8,13 +8,13 @@
 @if (Model.Confirmed)
 {
     <div class="col-12">
-        <span class="badge badge-success">Address data is confirmed</span>
-        <SfButton Disabled="@Model.FormEnabled">Confirm address details</SfButton>
+        <span >Address data is confirmed</span>
+        <SfButton OnClick="CreateStripeSession">Pay now!</SfButton>
     </div>
 
 }else{
     <div class="col-12">
-        <span class="badge badge-danger">Confirm address details!</span>
+        <span >Confirm address details!</span>
     </div>
   
 }
@@ -23,7 +23,7 @@
 
     <SfDataForm ID="MyForm"
     Model="@Model"
-
+    
     OnSubmit="ConfirmPostalHandler"
     ValidationDisplayMode="FormValidationDisplay.Tooltip">
 
@@ -31,15 +31,37 @@
             <DataAnnotationsValidator></DataAnnotationsValidator>
         </FormValidator>
 
-        <FormItems>
+    
+            @if (Model.Confirmed == false)
+        {
+            <FormItems>
+                <FormItem   IsEnabled="true" Field="@nameof(Model.Adress)" Placeholder="Adress" LabelText="Adress"></FormItem>
+                <FormItem IsEnabled="true" Field="@nameof(Model.PostCode)" Placeholder="Post code" LabelText="Post code"></FormItem>
+                <FormItem IsEnabled="true" Field="@nameof(Model.PhoneNumber)" Placeholder="Phone number" LabelText="Phone number"></FormItem>
+            </FormItems>
+            }
+            else
+            {
+            <FormItems>
+                <FormItem IsEnabled="false" Field="@nameof(Model.Adress)" Placeholder="Adress" LabelText="Adress"></FormItem>
+                <FormItem IsEnabled="false" Field="@nameof(Model.PostCode)" Placeholder="Post code" LabelText="Post code"></FormItem>
+                <FormItem IsEnabled="false" Field="@nameof(Model.PhoneNumber)" Placeholder="Phone number" LabelText="Phone number"></FormItem>
+                   </FormItems>
+            }
 
-            <FormItem IsEnabled="@Model.FormEnabled" Field="@nameof(Model.Adress)" Placeholder="Adress" LabelText="Name on card"></FormItem>
-            <FormItem IsEnabled="@Model.FormEnabled" Field="@nameof(Model.PostCode)" Placeholder="Post code" LabelText="Card Number"></FormItem>
-            <FormItem IsEnabled="@Model.FormEnabled" Field="@nameof(Model.PhoneNumber)" Placeholder="Post code" LabelText="Card Number"></FormItem>
+       
 
-        </FormItems>
+     
         <FormButtons>
-            <SfButton>Confirm address details</SfButton>
+            @if (Model.Confirmed == false)
+            {
+                    <SfButton>Confirm address details</SfButton>
+                }
+                else
+                {
+                    <SfButton>Change address details</SfButton>
+                }
+
         </FormButtons>
 
     </SfDataForm>
@@ -77,14 +99,23 @@ else
     {
         try
         {
-            var item = model.Model as DB.Modules.Payment.Queries.GetPostalData.Response;
-            await Mediator.Send(new DB.Modules.Payment.Commands.ConfirmAddressDetails.Request()
-                {
-                     Model = item
-                });
+            if (Model.Confirmed == false)
+            {
+                await Mediator.Send(new DB.Modules.Payment.Commands.ConfirmAddressDetails.Request()
+                    {
+                        Model = Model
+                    });
+            }
+            else
+            {
+                await Mediator.Send(new DB.Modules.Payment.Commands.UnlockAdressDetails.Request()
+                    {
+                        PostDataId = Model.Id
+                    });
+            }
 
-                FetchData();
-                   
+            await  FetchData();
+
         }
         catch (Exception ex)
         {
@@ -94,6 +125,10 @@ else
                     Type = Service.Notification.ToastType.error
                 });
         }
+    }
+    public void CreateStripeSession()
+    {
+        
     }
 
     public async Task FetchData()

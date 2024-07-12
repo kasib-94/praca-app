@@ -45,6 +45,8 @@ namespace DB.Modules.Payment.Queries
             public async Task<Response> Handle(Request request, CancellationToken cancellationToken)
             {
                 var auction = _dbContext.Auctions
+                    .AsNoTracking()
+                    .Include(x => x.Buyer)
                     .FirstOrDefault(x => x.Id == request.AuctionId);
 
                 if (auction.BuyerId.HasValue == false || auction.BuyerId.Value != request.UserId)
@@ -56,17 +58,26 @@ namespace DB.Modules.Payment.Queries
                 }
 
                 var item = _dbContext.PostalData
+                    .AsNoTracking()
                      .Include(x => x.User)
                     .FirstOrDefault(x => x.UserId == request.UserId && x.AuctionId == request.AuctionId);
 
                 if (item == null)
                 {
-                    return new Response();
+                    return new Response()
+                    {
+                        AuctionId = request.AuctionId,
+                        UserId = request.UserId,
+                        BuyerUsername = auction.Buyer.Username,
+                        BuyerId = auction.BuyerId.Value,
+
+                    };
                 }
                 else
                 {
                     return new Response()
                     {
+                        Id = item.Id,
                         Adress = item.Adress,
                         AuctionId = item.AuctionId,
                         BuyerId = auction.BuyerId.Value,
