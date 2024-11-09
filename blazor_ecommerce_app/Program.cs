@@ -10,7 +10,10 @@ using FluentValidation;
 using MediatR;
 
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.EntityFrameworkCore;
+
+using Radzen;
 
 using Syncfusion.Blazor;
 
@@ -23,6 +26,9 @@ builder.Services.AddServerSideBlazor();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddAuthenticationCore();
 builder.Services.AddAuthorization();
+
+
+
 builder.Services.AddDbContext<AppDbContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("AppConnectionString")));
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -35,7 +41,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     });
 Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("MzM0NDI2N0AzMjM2MmUzMDJlMzBacFkzTi9YZ1I2OWQ3eWFiYk1UalNqdUg5VWI3c2dLUngxSzhjVEZ4NlhJPQ==");
 builder.Services.AddSyncfusionBlazor();
-
+builder.Services.AddRadzenComponents();
 builder.Services.AddMediatR(cfg =>
 {
     cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()); // Register from the main assembly
@@ -45,13 +51,15 @@ builder.Services.AddMediatR(cfg =>
 builder.Services.AddValidatorsFromAssembly(typeof(DB.Modules.Authentication.Register.Register.RegisterHandler).Assembly);
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 builder.Services.AddBlazoredLocalStorage(config => config.JsonSerializerOptions.WriteIndented = true);
-
-builder.Services.AddSingleton<blazor_ecommerce_app.Service.Notification.ToastService>();
-
+builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
 
 
 
-
+builder.Services.AddScoped<DialogService>();
+builder.Services.AddScoped<NotificationService>();
+builder.Services.AddScoped<TooltipService>();
+builder.Services.AddScoped<ContextMenuService>();
+builder.Services.AddBlazoredLocalStorage();
 
 var app = builder.Build();
 

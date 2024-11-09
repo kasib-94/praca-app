@@ -1,5 +1,11 @@
 ﻿@inherits LayoutComponentBase
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
+
+<RadzenDialog />
+<RadzenNotification />
+<RadzenContextMenu />
+<RadzenTooltip />
+
 <PageTitle>Auctioner</PageTitle>
 
 
@@ -18,7 +24,6 @@
     </main>
     </CascadingValue>
 </div>
-<ToastComponent/>
 
 @code{
     public AuthModel Auth { get; set; }

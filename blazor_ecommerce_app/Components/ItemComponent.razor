@@ -1,0 +1,30 @@
+﻿@if (Data == null)
+    return;
+        <div class="d-flex row">
+@foreach (var item in Data)
+{
+
+        <RadzenCard class="col-4 mx-2" Style="max-width: 420px">
+            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" Gap="1rem" class="rz-p-4">
+                <RadzenImage Path="@(DB.SD.ImageHelper.GetImageDataUrl(item.Minature, item.Extension))" Style="width: 100px; height: 100px; border-radius: 50%;" />
+                <RadzenStack Gap="0">
+                    <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-2 rz-my-0">Przedmiot</RadzenText>
+                    <RadzenText TextStyle="TextStyle.Body1"><b>@(item.Title)</b></RadzenText>
+
+                </RadzenStack>
+            </RadzenStack>
+            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" Gap="0">
+                <RadzenButton Variant="Variant.Text" class="rz-text-secondary-color" Text="Cancel" />
+                <RadzenButton Variant="Variant.Text" Text="Send" />
+            </RadzenStack>
+        </RadzenCard>
+  
+  
+}
+</div>
+
+@code {
+    [Parameter]
+    public IEnumerable<DB.Models.IItem> Data { get; set; }
+
+}

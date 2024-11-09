@@ -15,6 +15,10 @@
 @using blazor_ecommerce_app.Models;
 @using Syncfusion.Blazor.Notifications;
 @using Syncfusion.Blazor.Popups;
-
+@using Radzen
+@using Radzen.Blazor
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
 @inject IMediator Mediator;
-@inject blazor_ecommerce_app.Service.Notification.ToastService Notifiaction;
+@inject NotificationService NotificationService
+@inject NavigationManager Navigation
+

@@ -5,7 +5,7 @@
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
 @inject NavigationManager uriHelper;
 
-<SfGrid DataSource="@Model" AllowPaging="true">
+<blazor_ecommerce_app.Components.BaseAuthroziedComponent><SfGrid DataSource="@Model" AllowPaging="true">
     <GridPageSettings PageSize="5"></GridPageSettings>
     <GridColumns>
         <GridColumn Field=@nameof(GetListOfAuctions.Response.Minature) HeaderText="Miniature" Width="130">
@@ -24,7 +24,7 @@
 
         <GridColumn Field=@nameof(GetListOfAuctions.Response.Title) HeaderText="Title" Width="130"></GridColumn>
 
-        <GridColumn Field=@nameof(GetListOfAuctions.Response.AuctionType) HeaderText="Type" TextAlign="TextAlign.Center" Width="160">
+        <GridColumn Field=@nameof(GetListOfAuctions.Response.AuctionType) HeaderText="Type" TextAlign="Syncfusion.Blazor.Grids.TextAlign.Center" Width="160">
 
             <Template>
                 @{
@@ -34,7 +34,7 @@
             </Template>
         </GridColumn>
 
-        <GridColumn Field=@nameof(GetListOfAuctions.Response.AuctionType) HeaderText="Time left" TextAlign="TextAlign.Center" Width="160">
+        <GridColumn Field=@nameof(GetListOfAuctions.Response.AuctionType) HeaderText="Time left" TextAlign="Syncfusion.Blazor.Grids.TextAlign.Center" Width="160">
 
             <Template>
                 @{
@@ -50,7 +50,7 @@
         </GridColumn>
 
 
-        <GridColumn Field=@nameof(GetListOfAuctions.Response.AuctionType) HeaderText="Seller" TextAlign="TextAlign.Center" Width="160">
+        <GridColumn Field=@nameof(GetListOfAuctions.Response.AuctionType) HeaderText="Seller" TextAlign="Syncfusion.Blazor.Grids.TextAlign.Center" Width="160">
 
             <Template>
                 @{
@@ -70,6 +70,13 @@
     </GridColumns>
 
 </SfGrid>
+    <blazor_ecommerce_app.Components.ItemComponent Data="@Data">
+
+</blazor_ecommerce_app.Components.ItemComponent>
+
+</blazor_ecommerce_app.Components.BaseAuthroziedComponent>
+
+
 
 @code {
     public string auctionPath = "/auctionview/";
@@ -87,7 +94,7 @@
         }
 
     }
-
+    public List<DB.Models.IItem> Data => Model?.Cast<DB.Models.IItem>().ToList();
     public List<DB.Modules.Auction.Queries.GetListOfAuctions.Response> Model { get; set; }
 
     public async Task FetchData()

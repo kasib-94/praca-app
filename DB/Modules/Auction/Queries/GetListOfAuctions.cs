@@ -1,4 +1,6 @@
 ﻿using DB.Domain;
+using DB.Domain.Entities;
+using DB.Models;
 
 using FluentValidation;
 
@@ -16,7 +18,7 @@ namespace DB.Modules.Auction.Queries
 
         }
 
-        public class Response
+        public class Response : IItem
         {
             public byte[]? Minature { get; set; }
             public string Title { get; set; }
@@ -30,6 +32,7 @@ namespace DB.Modules.Auction.Queries
 
             public DateTime DateStarted { get; set; }
             public DB.Domain.Entities.AuctionType AuctionType { get; set; }
+            public AuctionType Type { get; set; }
         }
         private class Handler : IRequestHandler<Request, List<Response>>
         {

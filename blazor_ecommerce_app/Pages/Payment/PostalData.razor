@@ -120,10 +120,12 @@ else
         }
         catch (Exception ex)
         {
-            Notifiaction.ShowToast(new Service.Notification.ToastOption()
+            NotificationService.Notify(new NotificationMessage
                 {
-                    Exception = ex,
-                    Type = Service.Notification.ToastType.error
+                    Severity = NotificationSeverity.Error,
+                    Duration = 3000,
+                    Summary = ex.Message,
+                    CloseOnClick = true
                 });
         }
     }
@@ -139,10 +141,12 @@ else
         }
         catch (Exception ex)
         {
-            Notifiaction.ShowToast(new Service.Notification.ToastOption()
+            NotificationService.Notify(new NotificationMessage
                 {
-                    Exception = ex,
-                    Type = Service.Notification.ToastType.error
+                    Severity = NotificationSeverity.Error,
+                    Duration = 3000,
+                    Summary = ex.Message,
+                    CloseOnClick = true
                 });
         }
        

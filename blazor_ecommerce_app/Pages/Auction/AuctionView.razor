@@ -3,6 +3,8 @@
 @using Syncfusion.Blazor.Popups;
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
 
+<blazor_ecommerce_app.Components.BaseAuthroziedComponent>
+
 <Syncfusion.Blazor.Popups.SfDialog Width="250px" ShowCloseIcon="true" IsModal="true" @bind-Visible="@BuyInstantVisible">
     <Syncfusion.Blazor.Popups.DialogTemplates>
         <Header> Confirmation </Header>
@@ -159,6 +161,7 @@
         </div>
     }
 </div>
+</blazor_ecommerce_app.Components.BaseAuthroziedComponent>
 @code {
     [Parameter]
     public int AuctionId { get; set; }
@@ -235,11 +238,14 @@
         }
         else
         {
-            Notifiaction.ShowToast(new Service.Notification.ToastOption()
+            NotificationService.Notify(new NotificationMessage
                 {
-                    Content = "Offer to low",
-                    Type = Service.Notification.ToastType.warning,
+                    Severity = NotificationSeverity.Error,
+                    Duration = 3000,
+                    Summary = "Oferta zbyt niska",
+                    CloseOnClick = true
                 });
+
         }
 
 

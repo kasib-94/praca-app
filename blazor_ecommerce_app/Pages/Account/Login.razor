@@ -33,10 +33,12 @@
                     Password = item.Password,
                     Username = item.Username
                 });
-            Notifiaction.ShowToast(new Service.Notification.ToastOption()
+            NotificationService.Notify(new NotificationMessage
                 {
-                    Content = "Login successful",
-                    Type = Service.Notification.ToastType.succes
+                    Severity = NotificationSeverity.Success,
+                    Duration = 3000,
+                    Summary = "Zalogowano",
+                    CloseOnClick = true
                 });
             var timer = new Timer(new TimerCallback(_ =>
         {
@@ -45,10 +47,13 @@
         }
         catch (Exception ex)
         {
-            Notifiaction.ShowToast(new Service.Notification.ToastOption()
+
+            NotificationService.Notify(new NotificationMessage
                 {
-                    Exception = ex,
-                    Type = Service.Notification.ToastType.error
+                    Severity = NotificationSeverity.Error,
+                    Duration = 3000,
+                    Summary = ex.Message,
+                    CloseOnClick = true
                 });
         }
     }

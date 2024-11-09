@@ -1,0 +1,16 @@
+﻿@inherits Microsoft.AspNetCore.Components.ComponentBase
+
+<AuthorizeView>
+    <Authorized>
+        @ChildContent
+    </Authorized>
+    <NotAuthorized>
+        <p>You are not authorized to view this content. Please <a href="/login">log in</a>.</p>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+}
