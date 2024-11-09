@@ -28,7 +28,7 @@ namespace DB.Modules.Auction.Command
 
                 var status = new AuctionStatus()
                 {
-                    Type = AuctionStatusType.Finished,
+                    Type = AuctionStatusType.FinishedByOwner,
                     ActionDate = DateTime.Now,
                     AuctionId = request.AuctionId,
                 };

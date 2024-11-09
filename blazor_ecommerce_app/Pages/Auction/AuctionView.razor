@@ -8,15 +8,60 @@
     @if (Model == null)
         return;
 
+    <Syncfusion.Blazor.Popups.SfDialog Width="250px" ShowCloseIcon="true" IsModal="true" @bind-Visible="@BuyInstantVisible">
+        <Syncfusion.Blazor.Popups.DialogTemplates>
+            <Header> Potwierdzenie </Header>
+            <Content> Jesteś pewien, że chcesz kupić za @AuctionOffer.ToString()? </Content>
+        </Syncfusion.Blazor.Popups.DialogTemplates>
+        <DialogButtons>
+            <DialogButton Content="OK" IsPrimary="true" OnClick="()=>BuyInstant()" />
+            <DialogButton Content="Cancel" OnClick="()=>{BuyInstantVisible = false;StateHasChanged();}" />
+        </DialogButtons>
+    </Syncfusion.Blazor.Popups.SfDialog>
+
+    <Syncfusion.Blazor.Popups.SfDialog Width="250px" ShowCloseIcon="true" IsModal="true" @bind-Visible="@AuctionOfferVisible">
+        <Syncfusion.Blazor.Popups.DialogTemplates>
+            <Header> Potwierdzenie </Header>
+            <Content> Jesteś pewien, że chcesz licytować za @AuctionOffer.ToString()? </Content>
+        </Syncfusion.Blazor.Popups.DialogTemplates>
+        <DialogButtons>
+            <DialogButton Content="OK" IsPrimary="true" OnClick="()=>MakeOffer()" />
+            <DialogButton Content="Cancel" OnClick="()=>{AuctionOfferVisible = false;StateHasChanged();}" />
+        </DialogButtons>
+    </Syncfusion.Blazor.Popups.SfDialog>
+
+    @if(Model.Statuses.Any(x=>x.Type == DB.Domain.Entities.AuctionStatusType.FinishedByOwner))
+    {
+        <RadzenAlert Variant="@Variant.Filled" AlertStyle="@AlertStyle.Danger" Size="@AlertSize.Large" Shade="Shade.Default" AllowClose=false>
+            Aukcja zakończona przez właściciela
+        </RadzenAlert>
+    }
+    
+    @if (Model.Statuses.Any(x => x.Type == DB.Domain.Entities.AuctionStatusType.Finished))
+    {
+        <RadzenAlert Variant="@Variant.Filled" AlertStyle="@AlertStyle.Success" Size="@AlertSize.Large" Shade="Shade.Default" AllowClose=false>
+            Aukcja zakończona 
+        </RadzenAlert>
+    }
+
     <RadzenCard class="rz-my-12 rz-mx-auto" Style="max-width: 800px">
         <RadzenText TextAlign="TextAlign.Center" TextStyle="TextStyle.H4"><b>@(Model.Title)</b></RadzenText>
-        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" Gap="1rem" class="rz-p-4">
+        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" Gap="1rem" class="rz-p-3">
             <RadzenStack  Gap="0">
-
                 <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-4 rz-mb-0">Sprzedawca</RadzenText>
                 <RadzenText @onclick='()=>{Navigation.NavigateTo("/user/"+Model.OwnerId,forceLoad:true);}'
                     TextStyle="TextStyle.Body1"><u><b> @Model.OwnerUsername <i class="ml-2 fas fa-search"></i></b></u></RadzenText>
+
             </RadzenStack>
+   
+        </RadzenStack>
+        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" Gap="1rem" class="rz-p-3">
+            @if (User.Id == Model.OwnerId && Model.Statuses.Any(x => x.Type == DB.Domain.Entities.AuctionStatusType.Finished) == false && Model.Statuses.Any(x => x.Type == DB.Domain.Entities.AuctionStatusType.FinishedByOwner) == false)
+            {
+                <RadzenButton Click='()=>{ FinishAuction(Model.AuctionId);}' Variant="Variant.Text" class="rz-text-danger-color"
+                              Text="Zakończ aukcje" />
+            }
+
         </RadzenStack>
         <RadzenCard class="rz-background-color-secondary-darker rz-shadow-0 rz-border-radius-0 rz-p-8" style="margin: 1rem calc(-1 * var(--rz-card-padding));">
   
@@ -26,198 +71,159 @@
                     <RadzenText TextStyle="TextStyle.Overline" class="rz-color-on-primary-light rz-display-flex rz-mt-4 rz-mb-0">Data rozpoczęcia</RadzenText>
                     <RadzenText TextStyle="TextStyle.Body1" class="rz-color-on-primary-light"><b>@(Model.AuctionStarted.ToString(DB.SD.SD.DateTimeFullFormat))</b></RadzenText>
 
-                   @if (Model.AukcjaZakonczona)
+                   @if (Model.BuyerId.HasValue)
                     {
                         <RadzenText TextStyle="TextStyle.Overline" class="rz-color-on-primary-light rz-display-flex rz-mt-4 rz-mb-0">Data zakończenia</RadzenText>
-                        <RadzenText TextStyle="TextStyle.Body1" class="rz-color-on-primary-light"><b>@(Model.AuctionFinish.ToString(DB.SD.SD.DateTimeFullFormat))</b></RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body1" class="rz-color-on-primary-light"><b>@(Model.DataKupna.Value.ToString(DB.SD.SD.DateTimeFullFormat))</b></RadzenText>
                     }
 
-                </RadzenColumn>
-                @if (Model.AukcjaZakonczona == false)
-                {
-                    <RadzenColumn SizeSM="6">
-                        <RadzenText TextStyle="TextStyle.H6" class="rz-color-on-primary-light"><strong>Dodaj ofertę</strong></RadzenText>
-                        <RadzenText TextStyle="TextStyle.Overline" class="rz-color-on-primary-light rz-display-flex rz-mt-4 rz-mb-0">Data rozpoczęcia</RadzenText>
-                        <RadzenText TextStyle="TextStyle.Body1" class="rz-color-on-primary-light"><b>@(Model.AuctionStarted.ToString(DB.SD.SD.DateTimeFullFormat))</b></RadzenText>
-
-                      
-
-                    </RadzenColumn>
-                }
-               
+                </RadzenColumn>          
 
             </RadzenRow>
+           
         </RadzenCard>
-        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" Gap="1rem" class="rz-p-4">
-            <RadzenStack Gap="0">
+        <RadzenRow class="mb-2" RowGap="0">
+            <RadzenColumn SizeSM="6">
+
+                <RadzenText TextStyle="TextStyle.H6" class="rz-color-on-primary-light"><strong>Oferty</strong></RadzenText>
+
+                @{
+                    var ostatniaOferta = Model.Offers.OrderByDescending(x => x.Date).FirstOrDefault();
+                }
+
+                @foreach (var oferta in Model.Offers.OrderByDescending(x => x.Date))
+                {
+                    if (oferta.PriceInstant.HasValue)
+                    {
+                        <RadzenBadge Shade="Shade.Darker" BadgeStyle="BadgeStyle.Success" Text="@("Kupiono natychmiast za "+oferta.PriceInstant.Value)" />
+                    }
+                    else if (oferta.PriceAuction.HasValue)
+                    {
+                        bool czyToOstatniaOferta = ostatniaOferta.Id == oferta.Id;
+                        bool czyTaOfertaZakonczylaAukcje = czyToOstatniaOferta && DateTime.Now > Model.AuctionFinish;
+                        <div class="col-12 mx-1">
+                            @if (czyTaOfertaZakonczylaAukcje)
+                            {
+                            <RadzenBadge Shade="Shade.Darker" BadgeStyle="BadgeStyle.Success" Text="@("Wygrała oferta "+oferta.PriceAuction.Value)" />
+                            }
+                            else if (czyToOstatniaOferta)
+                            {
+                            <RadzenBadge Shade="Shade.Lighter" BadgeStyle="BadgeStyle.Success" Text="@("Najwyższa oferta "+oferta.PriceAuction.Value)" />
+                            }
+                            else
+                            {
+                            <RadzenBadge Shade="Shade.Lighter" BadgeStyle="BadgeStyle.Base" Text="@("Oferta "+oferta.PriceAuction.Value)" />
+                            }
+                        </div>
+                     
+                    }
+                }
+
+
+
+            </RadzenColumn>
+            <RadzenColumn SizeSM="6">
+                <RadzenText TextStyle="TextStyle.H6" class="rz-color-on-primary-light"><strong>Dodaj ofertę</strong></RadzenText>
+
+                @{
+                    var ostatniaOferta = Model.Offers.OrderByDescending(x => x.Date).FirstOrDefault();
+                }
+
+
+                @if (Model.BuyNowOption != null)
+                {
+                    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" Gap="1rem" class="rz-p-3">
+
+
+                        <RadzenText TextStyle="TextStyle.H4" class="rz-display-flex rz-mt-4 rz-mb-0">Kup teraz</RadzenText>
+
+
+
+                    </RadzenStack>
+
+                    <RadzenColumn Size="12" SizeMD="4">
+                        <RadzenCard>
+                            <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Kup teraz</RadzenText>
+                            <RadzenButton Text="Buy Now"
+                                          ButtonStyle="@ButtonStyle.Success"
+                                          Click="()=>{ BuyInstantVisible = true; StateHasChanged(); }">
+                            </RadzenButton>
+                        </RadzenCard>
+                    </RadzenColumn>
+                }
+
+                @if (Model.AuctionOfferOption != null)
+                {
+
+                    <RadzenColumn Size="12" SizeMD="4">
+                        <RadzenCard>
+                            <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Licytuj</RadzenText>
+                            <RadzenNumeric TValue="decimal?"
+                                           Value="@AuctionOffer"
+                                           ValueChanged="@(offer => {  AuctionOffer = (decimal)offer; StateHasChanged(); })"
+                                           Format="C2"
+                                           Placeholder="Your offer">
+                            </RadzenNumeric>
+                            <RadzenButton Text="Licytuj"
+                                          Disabled="@(!IsCurrentOfferValid)"
+                                          ButtonStyle="@ButtonStyle.Base"
+                                          Click="()=>{ AuctionOfferVisible = true; StateHasChanged(); }" />
+                        </RadzenCard>
+                    </RadzenColumn>
+
+
+                }
+            </RadzenColumn>
+
+
+
+
+
+        </RadzenRow>
+        <RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Start" Gap="1rem" class="col-12">
+            <RadzenText TextAlign="TextAlign.Center" class="col-12" TextStyle="TextStyle.H4"><b>@("Opis przedmiotu")</b></RadzenText>
+            <RadzenStack class="col-12" Gap="0">
                     @((MarkupString)Model.Description)
             </RadzenStack>
         </RadzenStack>
-  
+
+        <RadzenCard class="rz-shadow-0 rz-border-radius-0 rz-p-8" style="margin: 1rem calc(-1 * var(--rz-card-padding));">
+
+      
+            <RadzenRow>
+                @if (Model.Photos.Any())
+                {
+                    <RadzenCarousel 
+                         ButtonStyle="@ButtonStyle.Info"
+                         ButtonShade="@Shade.Darker"
+                        @ref=carousel @bind-SelectedIndex="@selectedIndex" Auto="false" AllowPaging="@allowPaging"
+                                    Style="height: 400px;" PagerPosition="@pagerPosition" PagerOverlay="@pagerOverlay">
+                        <Items>
+                            @foreach (var item in Model.Photos)
+                            {
+                                <RadzenCarouselItem>
+                                    <RadzenImage Path="@(GetImageDataUrl(item.ImageData, item.Extension))" class="rz-h-100" />
+                                </RadzenCarouselItem>
+                            }
+                        </Items>
+                    </RadzenCarousel>
+                }
+            </RadzenRow>
+        </RadzenCard>
     </RadzenCard>
 
-<Syncfusion.Blazor.Popups.SfDialog Width="250px" ShowCloseIcon="true" IsModal="true" @bind-Visible="@BuyInstantVisible">
-    <Syncfusion.Blazor.Popups.DialogTemplates>
-        <Header> Confirmation </Header>
-        <Content> Are you sure you wanna buy for @Model.PriceInstant.ToString() ? </Content>
-    </Syncfusion.Blazor.Popups.DialogTemplates>
-    <DialogButtons>
-        <DialogButton Content="OK" IsPrimary="true" OnClick="()=>BuyInstant()" />
-        <DialogButton Content="Cancel" OnClick="()=>{BuyInstantVisible = false;StateHasChanged();}" />
-    </DialogButtons>
-</Syncfusion.Blazor.Popups.SfDialog>
-
-<Syncfusion.Blazor.Popups.SfDialog Width="250px" ShowCloseIcon="true" IsModal="true" @bind-Visible="@AuctionOfferVisible">
-    <Syncfusion.Blazor.Popups.DialogTemplates>
-        <Header> Confirmation </Header>
-        <Content> Are you sure you wanna offer @AuctionOffer.ToString() ? </Content>
-    </Syncfusion.Blazor.Popups.DialogTemplates>
-    <DialogButtons>
-        <DialogButton Content="OK" IsPrimary="true" OnClick="()=>MakeOffer()" />
-        <DialogButton Content="Cancel" OnClick="()=>{AuctionOfferVisible = false;StateHasChanged();}" />
-    </DialogButtons>
-</Syncfusion.Blazor.Popups.SfDialog>
-<div class="col-12">
-    @if (Model != null)
-    {
-        <div class="container mt-4">
-            <div class="row">
-                <div class="col-lg-4">
-                    <div class="card mb-2">
-                        <div class="card-body">
-                            <h4 class="card-title">@Model.Title</h4><h3>@(" auction of user"+Model.OwnerUsername)</h3>
-                            <p class="card-text">
-                                <span class="badge bg-primary">Auction started:</span> @Model.AuctionStarted.ToString(DB.SD.SD.DateTimeFullFormat)
-                            </p>
-                            <p class="card-text">
-                                <span class="badge bg-warning">Auction will finish:</span> @Model.AuctionFinish.ToString(DB.SD.SD.DateTimeFullFormat)
-                            </p>
 
 
-                        </div>
-                    </div>
-                  
-                </div>
-                <div class="col-lg-4">
-                    <div class="d-flex flex-column">
-                        @if (Model.BuyNowOption != null)
-                        {
-
-                            <div class="card mb-4">
-                                <div class="card-body">
-                                    <h4 class="card-title">Make offer</h4>
-
-                                    <div class="card-text">
-                                        <Syncfusion.Blazor.Buttons.SfButton class="btn btn-success" OnClick="()=>{BuyInstantVisible = true;StateHasChanged();}">
-                                            Buy Now
-                                        </Syncfusion.Blazor.Buttons.SfButton>
-                                    </div>
-                                </div>
-                            </div>
-                           
-                        }
-                        @if (Model.AuctionOfferOption != null)
-                        {
-
-                            <div class="card mb-4">
-                                <div class="card-body">
-                                    <h4 class="card-title">Make offer</h4>
-                                    <div class="card-item">
-                                        <SfNumericTextBox TValue="decimal?"
-                                                          Value=AuctionOffer
-                                                          ValueChanged="@(offer => {AuctionOffer = (decimal)offer;StateHasChanged();})"
-                                                          ValueExpression="()=>AuctionOffer"
-                                                          Format="c2"
-                                                          Placeholder="Your offer"
-                                                          FloatLabelType="@FloatLabelType.Auto">
-                                        </SfNumericTextBox>
-                                    </div>
-                                    <div class="card-text">
-                                        <Syncfusion.Blazor.Buttons.SfButton class="btn btn-success"
-                                        Disabled="IsCurrentOfferValid == false"
-                                        OnClick="()=>{AuctionOfferVisible = true;StateHasChanged();}">
-                                            Make offer
-                                        </Syncfusion.Blazor.Buttons.SfButton>
-                                    </div>
-                                </div>
-                            </div>
-
-                           
-                        }
-                    </div>
-                </div>
-                @if (DB.SD.AuctionSD.IsAuction(Model.AuctionType))
-                {
-                    <div class="card-body col-lg-4">
-                        @if (Model.Offers.Any())
-                        {
-                            <h4 class="card-title">Current offers</h4>
-                        }
-                     
-                        <div class="column">
-                            @{
-                                bool isFirst = true; 
-                            }
-                            @foreach (var offer in Model.Offers.Where(x => x.PriceAuction.HasValue).OrderByDescending(x => x.PriceAuction))
-                            {
-                                <div class="mb-3">
-                                   
-                                    <div class="card h-100">
-                                        <div class="card-body">
-                                            @if (isFirst)
-                                            {
-                                                <div class="card-item">
-                                                <span class="badge bg-success">Highest offer!</span>
-                                                </div>
-                                            }
-                                            <p class="card-text">
-                                                <strong>@offer.UserName</strong> offered <span class="badge bg-info">@offer.PriceAuction.ToString()</span>
-                                                <br />
-                                                <small class="text-muted">at @offer.Date.ToString(DB.SD.SD.DateTimeFullFormat)</small>
-                                            </p>
-                                        </div>
-                                    </div>
-                                     @{
-                                        isFirst = false; 
-                                    }
-                                </div>
-                            }
-                        </div>
-                    </div>
-                }
-            </div>
-
-            <div class="card mb-4">
-                <div class="card-body">
-                    <h4 class="card-title">Description</h4>
-
-                    <div class="card-text">
-                        @((MarkupString)Model.Description)
-                    </div>
-                </div>
-            </div>
-
-            @if (Model.Photos.Any())
-            {
-                <div class="row mt-4">
-                    @foreach (var photo in Model.Photos)
-                    {
-                        <div class="col-md-3 mb-3">
-                            <div class="card h-100">
-                                <img class="card-img-top" src="@(GetImageDataUrl(photo.ImageData, photo.Extension))" alt="Zdjęcie" />
-                            </div>
-                        </div>
-                    }
-                </div>
-            }
-        </div>
-    }
-</div>
 </blazor_ecommerce_app.Components.BaseAuthroziedComponent>
 @code {
     [Parameter]
     public int AuctionId { get; set; }
+    RadzenCarousel carousel;
+    bool allowPaging = true;
+    bool pagerOverlay = true;
+    PagerPosition pagerPosition = PagerPosition.Bottom;
 
+    int selectedIndex;
     public DB.Models.AuthModel User { get; set; }
 
     public decimal AuctionOffer { get; set; }
@@ -245,7 +251,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-       await FetchData();
+        await FetchData();
     }
 
 
@@ -253,13 +259,15 @@
     public async Task FetchData()
     {
         User = await CustomAuthProvider.GetUser();
-       
+
         Model = await Mediator.Send(new DB.Modules.Auction.Queries.GetAuctionById.Request()
             {
                 AuctionId = AuctionId,
                 UserId = User.Id
 
             });
+        if (Model.Photos.Any())
+            selectedIndex = 0;
         StateHasChanged();
     }
 
@@ -268,14 +276,14 @@
         string base64Image = Convert.ToBase64String(imageData);
         return $"data:image/{extension};base64,{base64Image}";
     }
-    public async Task BuyInstant()
+    public async void BuyInstant()
     {
         await Mediator.Send(Model.BuyNowOption);
         BuyInstantVisible = false;
         await FetchData();
 
     }
-    public async Task MakeOffer()
+    public async void MakeOffer()
     {
         if (IsCurrentOfferValid)
         {
@@ -296,8 +304,25 @@
                 });
 
         }
+       await FetchData();
+    }
 
+    public async void FinishAuction(int auctionId)
+    {
+        Dialog.OnClose += FinishAuctionEvent;
+        await Dialog.Confirm("Potwierdzenie", "Na pewno chcesz zakończyć aukcje?",
+                 new ConfirmOptions() { OkButtonText = "Tak", CancelButtonText = "Nie" });
 
+    }
+
+    public async void FinishAuctionEvent(dynamic auctionId)
+    {
+        await Mediator.Send(new DB.Modules.Auction.Command.FinishMyAuction.Request()
+            {
+                UserId = UserId,
+                AuctionId = Model.AuctionId
+            });
+        await FetchData();
 
     }
 

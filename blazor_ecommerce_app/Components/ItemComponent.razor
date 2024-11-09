@@ -47,10 +47,8 @@
                 @if (czyTwojaAukcja && item.AuctionId.HasValue)
                 {
                     <RadzenButton Click='()=>{ FinishAuction(item.AuctionId.Value);}' Variant="Variant.Text" class="rz-text-danger-color"
-                                  Text="@item.OwnerName" />
+                                  Text="Zakończ aukcje" />
 
-                    <RadzenButton Text="Zakończ aukcje" Click=@(args => Dialog.Confirm("Potwierdzenie", "Na pewno chcesz zakończyć aukcje?", 
-                        new ConfirmOptions() { OkButtonText = "Tak", CancelButtonText = "Nie" })) />
                 }
 
             </RadzenStack>
@@ -70,7 +68,13 @@
     [Parameter]
     public string Title { get; set; }
 
-    private int? konczonaAukcjaId = null; 
+    private int? konczonaAukcjaId = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Dialog.OnClose += FinishAuctionEvent;
+    }
+
     public async void FinishAuction(int auctionId)
     {
         Dialog.OnClose += FinishAuctionEvent;

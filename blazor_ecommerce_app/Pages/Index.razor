@@ -29,8 +29,6 @@
 
     public async Task FetchData()
     {
-
-
         Model = await Mediator.Send(new DB.Modules.Auction.Queries.GetListOfAuctions.Request());
         StateHasChanged();
     }

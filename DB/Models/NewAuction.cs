@@ -56,6 +56,7 @@
         public bool Minature { get; set; } = false;
         public string Extension { get; set; } = "";
         public string UniqueId { get; set; }
+        public int Id { get; set; }
 
 
     }

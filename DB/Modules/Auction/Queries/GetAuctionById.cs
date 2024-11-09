@@ -30,6 +30,10 @@ namespace DB.Modules.Auction.Queries
             public DB.Domain.Entities.AuctionType AuctionType { get; set; }
 
             public int OwnerId { get; set; }
+
+            public int? BuyerId { get; set; } = null;
+            public DateTime? DataKupna { get; set; }
+
             public string OwnerUsername { get; set; }
 
             public DateTime AuctionStarted { get; set; }
@@ -68,7 +72,10 @@ namespace DB.Modules.Auction.Queries
                          AuctionStarted = x.AuctionStart,
                          OwnerUsername = x.User.Username,
                          OwnerId = x.User.Id,
-
+                         BuyerId = x.BuyerId,
+                         DataKupna = x.Status.FirstOrDefault(s => s.Type == Domain.Entities.AuctionStatusType.Finished) == null
+                                              ? null
+                                              : x.Status.FirstOrDefault(s => s.Type == Domain.Entities.AuctionStatusType.Finished).ActionDate,
 
                          PriceAuctionStart = x.IsAuction ? x.PriceAuctionStart : null,
                          PriceAuction = DB.SD.AuctionSD.IsAuction(x.Type)
@@ -103,7 +110,8 @@ namespace DB.Modules.Auction.Queries
                              Id = y.Id,
                              PriceAuction = y.PriceAuction,
                              PriceInstant = y.PriceInstant,
-                             UserName = y.User.Username
+                             UserName = y.User.Username,
+                             UserId = y.User.Id
 
                          }).ToList()
 
@@ -112,11 +120,13 @@ namespace DB.Modules.Auction.Queries
 
                      }).ToListAsync()).First();
 
-                if (request.UserId != item.OwnerId && item.Statuses.FirstOrDefault(x => x.Type == Domain.Entities.AuctionStatusType.Finished) == null)
+                if (request.UserId != item.OwnerId && item.Statuses.FirstOrDefault(x => x.Type == Domain.Entities.AuctionStatusType.Finished) == null &&
+                    item.AuctionFinish > DateTime.Now && item.OwnerId != request.UserId)
                 {
-                    item.AukcjaZakonczona = true;
+
                     if (DB.SD.AuctionSD.IsInstantBuy(item.AuctionType))
                     {
+
                         item.BuyNowOption = new BuyNow.Request()
                         {
                             AuctionId = item.AuctionId,
@@ -133,6 +143,12 @@ namespace DB.Modules.Auction.Queries
                         };
                     }
                 }
+                else
+                {
+                    item.AukcjaZakonczona = true;
+                }
+
+
 
                 return item;
             }
