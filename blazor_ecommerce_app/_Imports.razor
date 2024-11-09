@@ -17,8 +17,10 @@
 @using Syncfusion.Blazor.Popups;
 @using Radzen
 @using Radzen.Blazor
+@inject DialogService Dialog
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
 @inject IMediator Mediator;
+@inject CustomAuthenticationStateProvider CustomAuthProvider
 @inject NotificationService NotificationService
 @inject NavigationManager Navigation
 

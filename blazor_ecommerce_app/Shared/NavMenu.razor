@@ -1,5 +1,7 @@
-﻿<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+﻿@inject IWebHostEnvironment WebHostEnvironment
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
+    @*     <RadzenImage Path="@(DB.SD.ImageHelper.GetImageDataUrl(Logo,".png"))" Style="width: 75px; height: 75px; border-radius: 0%;" /> *@
         <a class="navbar-brand" href="#">Auctioner</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse"
         data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
@@ -48,9 +50,15 @@
     [Parameter]
     public AuthModel Auth { get; set; }
 
-
-
-
+    public byte[] Logo
+    {
+        get; set;
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        var filePath = Path.Combine(WebHostEnvironment.WebRootPath, "img", "logo.webp");
+        Logo = File.ReadAllBytes(filePath);
+    }
 
 
 }

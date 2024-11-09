@@ -85,7 +85,7 @@ namespace DB.SD
     public static class SD
     {
 
-        public static string DateTimeFullFormat = "yyyy-MM-dd:HH:mm";
+        public static string DateTimeFullFormat = "yyyy-MM-dd HH:mm";
         public static string SavePath = "C:\\Source";
     }
 }

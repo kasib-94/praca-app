@@ -1,0 +1,62 @@
+﻿@using DB.Modules.Auction.Queries;
+@using DB.Modules.Auction.Command;
+
+@if (UserModel != null)
+{
+    <div class="card mx-auto col-6">
+        <div class="card-header">
+            <h5 class="card-title">
+                <img src="/img/login.jpg" style="max-height:4rem" />
+            </h5>
+        </div>
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-5">ID:</dt>
+                <dd class="col-sm-7">@UserModel.Id</dd>
+
+                <dt class="col-sm-5">User Name:</dt>
+                <dd class="col-sm-7">@UserModel.UserName</dd>
+
+                <dt class="col-sm-5">Email:</dt>
+                <dd class="col-sm-7">@UserModel.Email</dd>
+
+                <dt class="col-sm-5">Active Auctions:</dt>
+                <dd class="col-sm-7">@UserModel.AuctionsActive</dd>
+
+                <dt class="col-sm-5">Auctions Sold:</dt>
+                <dd class="col-sm-7">@UserModel.AuctionsSold</dd>
+
+                <dt class="col-sm-5">Auctions Not Sold:</dt>
+                <dd class="col-sm-7">@UserModel.AuctionsNotSold</dd>
+            </dl>
+        </div>
+    </div>
+}
+
+<ItemComponent 
+    Data="@_activeAuctions"
+    UserId="@UserId"
+    Title="Aktywne aukcje"
+    />
+
+@code {
+
+    [Parameter] public int UserId { get; set; }
+    public DB.Modules.Authentication.GiveUserInfo.Response UserModel { get; set; }
+    public List<DB.Modules.Auction.Queries.GetMyAuctions.Response> ActiveAuctions { get; set; }
+    private List<DB.Models.IItem> _activeAuctions => ActiveAuctions?.Cast<DB.Models.IItem>().ToList();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        ActiveAuctions = await Mediator.Send(new DB.Modules.Auction.Queries.GetMyAuctions.Request()
+            {
+                UserId = UserId
+            });
+        UserModel = await Mediator.Send(new DB.Modules.Authentication.GiveUserInfo.Request()
+            {
+                UserId = UserId
+            });
+    }
+
+}

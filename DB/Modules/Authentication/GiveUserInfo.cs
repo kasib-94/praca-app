@@ -39,6 +39,7 @@ namespace DB.Modules.Authentication
             {
 
                 return (await _dbContext.Users
+                    .AsNoTracking()
                     .Where(x => x.Id == request.UserId)
                     .Select(x => new Response()
                     {

@@ -1,30 +1,91 @@
-﻿@if (Data == null)
+﻿@using DB.Modules.Auction.Queries;
+@using DB.Modules.Auction.Command;
+
+@if (Data == null)
     return;
         <div class="d-flex row">
+
+
+    @if (string.IsNullOrEmpty(Title) == false)
+    {
+        <div class="mx-auto my-2 col-12">
+            <RadzenText TextAlign=@TextAlign.Center TextStyle="TextStyle.H4">@Title</RadzenText>
+        </div>
+    }
 @foreach (var item in Data)
 {
-
-        <RadzenCard class="col-4 mx-2" Style="max-width: 420px">
+ 
+     
+        <RadzenCard  class="col-4 mx-auto box-shadow-left-bottom" Style="max-width: 420px">
+           
             <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" Gap="1rem" class="rz-p-4">
-                <RadzenImage Path="@(DB.SD.ImageHelper.GetImageDataUrl(item.Minature, item.Extension))" Style="width: 100px; height: 100px; border-radius: 50%;" />
+                <RadzenImage Path="@(DB.SD.ImageHelper.GetImageDataUrl(item.Minature, item.Extension))" Style="width: 150px; height: 150px; border-radius: 50%;" />
                 <RadzenStack Gap="0">
                     <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-2 rz-my-0">Przedmiot</RadzenText>
                     <RadzenText TextStyle="TextStyle.Body1"><b>@(item.Title)</b></RadzenText>
-
                 </RadzenStack>
             </RadzenStack>
             <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" Gap="0">
-                <RadzenButton Variant="Variant.Text" class="rz-text-secondary-color" Text="Cancel" />
-                <RadzenButton Variant="Variant.Text" Text="Send" />
+
+              @{
+                  bool czyTwojaAukcja = item.OwnerId == UserId && item.OwnerId != null;
+              }
+
+                @if(item.AuctionId != null )
+                {
+                    <RadzenButton Variant="Variant.Text" class="rz-text-secondary-color"
+                                  Click="() =>{ Navigation.NavigateTo(_auctionPath+item.AuctionId, forceLoad : true);}"
+                    Text="Pokaż " />
+                }
+
+                @if (item.OwnerId != null && czyTwojaAukcja == false)
+                {
+                    <RadzenButton Click='()=>{Navigation.NavigateTo("/user/"+item.OwnerId,forceLoad:true);}' Variant="Variant.Text" class="rz-text-primary-color" 
+                        Text="@item.OwnerName" />
+                }
+
+                @if (czyTwojaAukcja && item.AuctionId.HasValue)
+                {
+                    <RadzenButton Click='()=>{ FinishAuction(item.AuctionId.Value);}' Variant="Variant.Text" class="rz-text-danger-color"
+                                  Text="@item.OwnerName" />
+
+                    <RadzenButton Text="Zakończ aukcje" Click=@(args => Dialog.Confirm("Potwierdzenie", "Na pewno chcesz zakończyć aukcje?", 
+                        new ConfirmOptions() { OkButtonText = "Tak", CancelButtonText = "Nie" })) />
+                }
+
             </RadzenStack>
         </RadzenCard>
-  
-  
+
+
 }
 </div>
 
 @code {
+
+    private  string _auctionPath = "/auctionview/";
+    [Parameter]
+    public int UserId { get; set; }
     [Parameter]
     public IEnumerable<DB.Models.IItem> Data { get; set; }
+    [Parameter]
+    public string Title { get; set; }
+
+    private int? konczonaAukcjaId = null; 
+    public async void FinishAuction(int auctionId)
+    {
+        Dialog.OnClose += FinishAuctionEvent;
+        await Dialog.Confirm("Potwierdzenie", "Na pewno chcesz zakończyć aukcje?",
+                 new ConfirmOptions() { OkButtonText = "Tak", CancelButtonText = "Nie" });
+    }
+
+            public async void FinishAuctionEvent(dynamic auctionId)
+            {
+                await Mediator.Send(new FinishMyAuction.Request()
+                {
+                    UserId = UserId,
+                AuctionId = konczonaAukcjaId.Value
+                });
+
+            }
 
 }

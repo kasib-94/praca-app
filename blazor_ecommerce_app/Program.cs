@@ -24,8 +24,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddAuthenticationCore();
-builder.Services.AddAuthorization();
+
 
 
 
@@ -52,6 +51,9 @@ builder.Services.AddValidatorsFromAssembly(typeof(DB.Modules.Authentication.Regi
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 builder.Services.AddBlazoredLocalStorage(config => config.JsonSerializerOptions.WriteIndented = true);
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
+builder.Services.AddScoped<CustomAuthenticationStateProvider>();
+builder.Services.AddAuthenticationCore();
+builder.Services.AddAuthorization();
 
 
 

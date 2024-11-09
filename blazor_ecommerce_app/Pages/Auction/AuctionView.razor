@@ -1,9 +1,60 @@
 ﻿@page "/auctionview/{AuctionId:int}"
 @using DB.Modules.Auction.Queries;
 @using Syncfusion.Blazor.Popups;
-@inject Blazored.LocalStorage.ILocalStorageService localStorage
+
 
 <blazor_ecommerce_app.Components.BaseAuthroziedComponent>
+
+    @if (Model == null)
+        return;
+
+    <RadzenCard class="rz-my-12 rz-mx-auto" Style="max-width: 800px">
+        <RadzenText TextAlign="TextAlign.Center" TextStyle="TextStyle.H4"><b>@(Model.Title)</b></RadzenText>
+        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" Gap="1rem" class="rz-p-4">
+            <RadzenStack  Gap="0">
+
+                <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-4 rz-mb-0">Sprzedawca</RadzenText>
+                <RadzenText @onclick='()=>{Navigation.NavigateTo("/user/"+Model.OwnerId,forceLoad:true);}'
+                    TextStyle="TextStyle.Body1"><u><b> @Model.OwnerUsername <i class="ml-2 fas fa-search"></i></b></u></RadzenText>
+            </RadzenStack>
+        </RadzenStack>
+        <RadzenCard class="rz-background-color-secondary-darker rz-shadow-0 rz-border-radius-0 rz-p-8" style="margin: 1rem calc(-1 * var(--rz-card-padding));">
+  
+            <RadzenRow RowGap="0">
+                <RadzenColumn SizeSM="6">
+                    <RadzenText TextStyle="TextStyle.H6" class="rz-color-on-primary-light"><strong>Informacje</strong></RadzenText>
+                    <RadzenText TextStyle="TextStyle.Overline" class="rz-color-on-primary-light rz-display-flex rz-mt-4 rz-mb-0">Data rozpoczęcia</RadzenText>
+                    <RadzenText TextStyle="TextStyle.Body1" class="rz-color-on-primary-light"><b>@(Model.AuctionStarted.ToString(DB.SD.SD.DateTimeFullFormat))</b></RadzenText>
+
+                   @if (Model.AukcjaZakonczona)
+                    {
+                        <RadzenText TextStyle="TextStyle.Overline" class="rz-color-on-primary-light rz-display-flex rz-mt-4 rz-mb-0">Data zakończenia</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body1" class="rz-color-on-primary-light"><b>@(Model.AuctionFinish.ToString(DB.SD.SD.DateTimeFullFormat))</b></RadzenText>
+                    }
+
+                </RadzenColumn>
+                @if (Model.AukcjaZakonczona == false)
+                {
+                    <RadzenColumn SizeSM="6">
+                        <RadzenText TextStyle="TextStyle.H6" class="rz-color-on-primary-light"><strong>Dodaj ofertę</strong></RadzenText>
+                        <RadzenText TextStyle="TextStyle.Overline" class="rz-color-on-primary-light rz-display-flex rz-mt-4 rz-mb-0">Data rozpoczęcia</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body1" class="rz-color-on-primary-light"><b>@(Model.AuctionStarted.ToString(DB.SD.SD.DateTimeFullFormat))</b></RadzenText>
+
+                      
+
+                    </RadzenColumn>
+                }
+               
+
+            </RadzenRow>
+        </RadzenCard>
+        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" Gap="1rem" class="rz-p-4">
+            <RadzenStack Gap="0">
+                    @((MarkupString)Model.Description)
+            </RadzenStack>
+        </RadzenStack>
+  
+    </RadzenCard>
 
 <Syncfusion.Blazor.Popups.SfDialog Width="250px" ShowCloseIcon="true" IsModal="true" @bind-Visible="@BuyInstantVisible">
     <Syncfusion.Blazor.Popups.DialogTemplates>
@@ -41,6 +92,7 @@
                             <p class="card-text">
                                 <span class="badge bg-warning">Auction will finish:</span> @Model.AuctionFinish.ToString(DB.SD.SD.DateTimeFullFormat)
                             </p>
+
 
                         </div>
                     </div>
@@ -166,12 +218,14 @@
     [Parameter]
     public int AuctionId { get; set; }
 
-    [CascadingParameter]
-    public AuthModel Auth { get; set; }
+    public DB.Models.AuthModel User { get; set; }
+
     public decimal AuctionOffer { get; set; }
 
     public bool BuyInstantVisible { get; set; } = false;
     public bool AuctionOfferVisible { get; set; } = false;
+
+    private int UserId { get; set; }
 
     public bool IsCurrentOfferValid
     {
@@ -189,26 +243,21 @@
 
     public GetAuctionById.Response Model { get; set; }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnInitializedAsync()
     {
-        if (firstRender)
-        {
-            await FetchData();
-        }
-
+       await FetchData();
     }
+
+
 
     public async Task FetchData()
     {
-
-        if (Auth == null)
-        {
-            Auth = await localStorage.GetItemAsync<AuthModel>("auth_token");
-        }
+        User = await CustomAuthProvider.GetUser();
+       
         Model = await Mediator.Send(new DB.Modules.Auction.Queries.GetAuctionById.Request()
             {
                 AuctionId = AuctionId,
-                UserId = Auth.Id
+                UserId = User.Id
 
             });
         StateHasChanged();

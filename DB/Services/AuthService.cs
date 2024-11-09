@@ -12,10 +12,14 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
         _localStorage = localStorage;
     }
 
+    private DB.Models.AuthModel User { get; set; }
+
 
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
         var user = await _localStorage.GetItemAsync<DB.Models.AuthModel>("auth_token");
+        if (User == null)
+            User = user;
 
         ClaimsIdentity identity;
         if (user != null)
@@ -34,6 +38,13 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
 
         var claim = new ClaimsPrincipal(identity);
         return await Task.FromResult(new AuthenticationState(claim));
+    }
+
+    public async Task<DB.Models.AuthModel> GetUser()
+    {
+        if (User == null)
+            await GetAuthenticationStateAsync();
+        return User;
     }
 
 

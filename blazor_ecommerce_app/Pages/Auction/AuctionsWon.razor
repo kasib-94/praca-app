@@ -59,7 +59,7 @@
             @{
                                 var auction = (context as GetListOfAuctions.Response);
             }
-                    <Syncfusion.Blazor.Buttons.SfButton  OnClick="() =>{ uriHelper.NavigateTo(auctionPath+auction.Id, forceLoad : true);}">Pay now</Syncfusion.Blazor.Buttons.SfButton>
+                    <Syncfusion.Blazor.Buttons.SfButton  OnClick="() =>{ uriHelper.NavigateTo(auctionPath+auction.AuctionId, forceLoad : true);}">Pay now</Syncfusion.Blazor.Buttons.SfButton>
 
             </Template>
         </GridColumn>

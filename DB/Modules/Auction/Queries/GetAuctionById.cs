@@ -40,6 +40,7 @@ namespace DB.Modules.Auction.Queries
 
             public List<AuctionStatus> Statuses { get; set; } = new();
 
+            public bool AukcjaZakonczona { get; set; } = false;
 
             public List<Offer> Offers { get; set; } = new();
 
@@ -113,6 +114,7 @@ namespace DB.Modules.Auction.Queries
 
                 if (request.UserId != item.OwnerId && item.Statuses.FirstOrDefault(x => x.Type == Domain.Entities.AuctionStatusType.Finished) == null)
                 {
+                    item.AukcjaZakonczona = true;
                     if (DB.SD.AuctionSD.IsInstantBuy(item.AuctionType))
                     {
                         item.BuyNowOption = new BuyNow.Request()

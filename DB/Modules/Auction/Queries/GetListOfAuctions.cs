@@ -22,12 +22,12 @@ namespace DB.Modules.Auction.Queries
         {
             public byte[]? Minature { get; set; }
             public string Title { get; set; }
-            public int Id { get; set; }
+            public int? AuctionId { get; set; } = null;
 
             public string? Extension { get; set; }
 
             public string OwnerName { get; set; }
-            public int OwnerId { get; set; }
+            public int? OwnerId { get; set; } = null;
             public DateTime DateFinish { get; set; }
 
             public DateTime DateStarted { get; set; }
@@ -46,6 +46,7 @@ namespace DB.Modules.Auction.Queries
             public async Task<List<Response>> Handle(Request request, CancellationToken cancellationToken)
             {
                 var aukcje = await _dbContext.Auctions
+                      .AsNoTracking()
                       .Include(x => x.Offers)
                       .Include(x => x.Attachments)
                       .Include(x => x.Status)
@@ -88,7 +89,7 @@ namespace DB.Modules.Auction.Queries
                                       : null,
 
                     Title = x.Title,
-                    Id = x.Id,
+                    AuctionId = x.Id,
                     OwnerName = x.User.Username,
                     OwnerId = x.User.Id,
                     DateFinish = x.AuctionFinish,

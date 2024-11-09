@@ -55,7 +55,7 @@ namespace DB.Modules.Auction.Queries
                                       : null,
 
                           Title = x.Title,
-                          Id = x.Id,
+                          AuctionId = x.Id,
                           OwnerName = x.User.Username,
                           OwnerId = x.User.Id,
                           DateFinish = x.AuctionFinish,
