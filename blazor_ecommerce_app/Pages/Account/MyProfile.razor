@@ -25,8 +25,7 @@
 
     }
     public string auctionPath = "/auctionview/";
-    public List<DB.Modules.Auction.Queries.GetMyAuctions.Response> ActiveAuctions { get; set; }
-    public List<DB.Modules.Auction.Queries.GetMyFinishedAuctions.Response> FinishedAuctions { get; set; }
+
     public DB.Modules.Authentication.GiveUserInfo.Response UserModel { get; set; }
     public async Task FetchData()
     {
@@ -36,14 +35,7 @@
         {
             Auth = await localStorage.GetItemAsync<AuthModel>("auth_token");
         }
-        ActiveAuctions = await Mediator.Send(new DB.Modules.Auction.Queries.GetMyAuctions.Request()
-        {
-            UserId = Auth.Id
-        });
-        FinishedAuctions = await Mediator.Send(new DB.Modules.Auction.Queries.GetMyFinishedAuctions.Request()
-            {
-                UserId = Auth.Id
-            });
+   
 
         UserModel = await Mediator.Send(new DB.Modules.Authentication.GiveUserInfo.Request()
             {

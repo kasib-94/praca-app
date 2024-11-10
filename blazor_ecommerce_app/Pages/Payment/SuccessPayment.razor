@@ -8,25 +8,23 @@
         @if (StripeStatus == DB.Domain.Entities.StripeStatus.Success)
         {
             <div class="success-message">
-                <h1>Congratulations on Your Purchase!</h1>
-                <p>Thank you for your payment. We hope you enjoy your new item.</p>
-                <p>We recommend our services for future purchases.</p>
+                <h1>Gratulujemy zakupu!</h1>
+                <p>Dziękujemy za dokonanie płatności. Mamy nadzieję, że będziesz zadowolony z zakupu.</p>
+                <p>Polecamy się na przyszłość.</p>
                 <h2>@Model.Title</h2>
-                <h3>@((MarkupString)Model.Description)</h3>
+
             </div>
         }
         else
         {
             <div class="failure-message">
-                <h1>Payment Failed</h1>
-                <p>Unfortunately, your payment was not successful.</p>
-                <p>Please try again or contact our support for assistance.</p>
+                <h1>Nieudana płatność</h1>
+                <p>Niestety, Twoja płatność nie została zakończona pomyślnie.</p>
+                <p>Proszę spróbuj ponownie lub skontaktuj się z naszym wsparciem, aby uzyskać pomoc.</p>
                 <h2>@Model.Title</h2>
-                <h3>@((MarkupString)Model.Description)</h3>
             </div>
         }
     }
-  
 </div>
 
 <style>

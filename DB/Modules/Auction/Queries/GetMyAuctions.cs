@@ -49,8 +49,8 @@ namespace DB.Modules.Auction.Queries
                       .AsNoTracking()
                       .Where(x =>
                       x.UserId == request.UserId &&
-                      x.Status.Any(x => x.Type == Domain.Entities.AuctionStatusType.Finished == false &&
-                                        x.Type == Domain.Entities.AuctionStatusType.FinishedByOwner == false))
+                      x.Status.Any(x => x.Type == Domain.Entities.AuctionStatusType.Finished) &&
+                      x.Payments.Any(x => x.StripeStatus == StripeStatus.Success) == false)
                       .Select(x => new Response()
                       {
                           Minature = x.Attachments.Any()

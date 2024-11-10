@@ -57,7 +57,7 @@
             <RadzenStack Style="@(czyMaMiniaturke ? "" : "margin-top: 98px !important")"  Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" Gap="0">
 
               @{
-                    bool czyTwojaAukcja = item.OwnerId == User.Id && item.OwnerId != null;
+                    bool czyTwojaAukcja = User != null && item.OwnerId != null && item.OwnerId == User.Id;
               }
 
                 @if(item.AuctionId != null )

@@ -30,7 +30,8 @@ namespace DB.Modules.Auction.Queries
                 {
                     var w = await _dbContext.Auctions
                  .AsNoTracking()
-                 .Where(x => x.Status.Any(x => x.Type == Domain.Entities.AuctionStatusType.Finished)
+                 .Where(x => x.Status.Any(y => y.Type == Domain.Entities.AuctionStatusType.Finished)
+                       && x.Payments.Any(y => y.StripeStatus == Domain.Entities.StripeStatus.Success) == false
                        && x.BuyerId == request.UserId)
                  .Select(x => new GetListOfAuctions.Response()
                  {

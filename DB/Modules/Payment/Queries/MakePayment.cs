@@ -54,8 +54,8 @@ namespace DB.Modules.Payment.Queries
                         PriceData = new Stripe.Checkout.SessionLineItemPriceDataOptions()
                         {
                             UnitAmount = DB.SD.AuctionSD.IsInstantBuy(auction.Type)
-                                        ? (long)auction.PriceInstant
-                                        : (long)auction.Offers.Max(x => x.PriceAuction),
+                                        ? (long)auction.PriceInstant * 100
+                                        : (long)auction.Offers.Max(x => x.PriceAuction) * 100,
                             Currency = "pln",
 
                             ProductData = new Stripe.Checkout.SessionLineItemPriceDataProductDataOptions()

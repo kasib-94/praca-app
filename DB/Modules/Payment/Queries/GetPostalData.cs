@@ -48,6 +48,7 @@ namespace DB.Modules.Payment.Queries
             {
                 var auction = _dbContext.Auctions
                     .AsNoTracking()
+                    .Include(x => x.Payments)
                     .Include(x => x.Buyer)
                     .Include(x => x.Offers)
                     .FirstOrDefault(x => x.Id == request.AuctionId);
@@ -59,6 +60,18 @@ namespace DB.Modules.Payment.Queries
 
 
 
+                if (auction.Payments.Any(x => x.StripeStatus == Domain.Entities.StripeStatus.Success))
+                {
+                    var itemResult = _dbContext.PostalData
+          .AsNoTracking()
+           .Include(x => x.User)
+          .FirstOrDefault(x => x.UserId == request.UserId && x.AuctionId == request.AuctionId);
+
+                    result.Adress = itemResult.Adress;
+                    result.PhoneNumber = itemResult.PhoneNumber;
+                    result.PostCode = itemResult.PostCode;
+                }
+
 
                 if (auction.BuyerId.HasValue == false || auction.BuyerId.Value != request.UserId)
                 {
@@ -67,9 +80,9 @@ namespace DB.Modules.Payment.Queries
                 }
 
                 var item = _dbContext.PostalData
-                    .AsNoTracking()
-                     .Include(x => x.User)
-                    .FirstOrDefault(x => x.UserId == request.UserId && x.AuctionId == request.AuctionId);
+          .AsNoTracking()
+           .Include(x => x.User)
+          .FirstOrDefault(x => x.UserId == request.UserId && x.AuctionId == request.AuctionId);
 
                 if (item == null)
                 {
