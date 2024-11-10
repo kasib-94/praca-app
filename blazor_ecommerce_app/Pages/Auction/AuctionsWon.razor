@@ -13,6 +13,7 @@
     {
         <blazor_ecommerce_app.Components.ItemComponent Title="Oczekujące na zapłate"
                                                        UserId=@User.Id
+                                                       OdswiezDane="FetchData"
                                                        TypKomponentuItem="@DB.Models.TypKomponentuItem.DoZaplaty"
                                                        Data="@_model">
         </blazor_ecommerce_app.Components.ItemComponent>
@@ -22,6 +23,7 @@
     {
         <blazor_ecommerce_app.Components.ItemComponent Title="Opłacone"
                                                        UserId=@User.Id
+                                                       OdswiezDane="FetchData"
                                                        TypKomponentuItem="@DB.Models.TypKomponentuItem.Oplacone"
                                                        Data="@oplacone">
         </blazor_ecommerce_app.Components.ItemComponent>

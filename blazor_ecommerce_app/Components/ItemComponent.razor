@@ -12,7 +12,17 @@
             <RadzenText TextAlign=@TextAlign.Center TextStyle="TextStyle.H4">@Title</RadzenText>
         </div>
     }
-   
+
+    <Syncfusion.Blazor.Popups.SfDialog Width="250px" ShowCloseIcon="true" IsModal="true" @bind-Visible="@ZakonczenieAukcji">
+        <Syncfusion.Blazor.Popups.DialogTemplates>
+            <Header> Potwierdzenie </Header>
+            <Content> Czy na pewno chcesz zakończyć aukcje? </Content>
+        </Syncfusion.Blazor.Popups.DialogTemplates>
+        <DialogButtons>
+            <DialogButton Content="Tak" CssClass="e-success" IsPrimary="true" OnClick="()=>FinishAuction(konczonaAukcjaId)" />
+            <DialogButton Content="Nie" OnClick="()=>{ZakonczenieAukcji = false;StateHasChanged();}" />
+        </DialogButtons>
+    </Syncfusion.Blazor.Popups.SfDialog>
       
 @foreach (var item in Data)
 {
@@ -47,7 +57,7 @@
             <RadzenStack Style="@(czyMaMiniaturke ? "" : "margin-top: 98px !important")"  Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" Gap="0">
 
               @{
-                  bool czyTwojaAukcja = item.OwnerId == UserId && item.OwnerId != null;
+                    bool czyTwojaAukcja = item.OwnerId == User.Id && item.OwnerId != null;
               }
 
                 @if(item.AuctionId != null )
@@ -68,7 +78,7 @@
 
                 @if (czyTwojaAukcja && item.AuctionId.HasValue)
                 {
-                    <RadzenButton Click='()=>{ FinishAuction(item.AuctionId.Value);}'
+                    <RadzenButton Click='()=>{konczonaAukcjaId= item.AuctionId.Value; ZakonczenieAukcji = true; StateHasChanged();}'
                                   ButtonStyle="@ButtonStyle.Danger"
                         Variant="Variant.Text" class="rz-text-danger-color"
                                   Text="Zakończ aukcje" />
@@ -81,6 +91,13 @@
                         Variant="Variant.Text" 
                         ButtonStyle="@ButtonStyle.Success"
                        Text="Zapłać" /> 
+                }
+                @if(TypKomponentuItem == DB.Models.TypKomponentuItem.Oplacone && User.Id == item.OwnerId)
+                {
+                    <RadzenButton Click='async()=>{await DajDaneDoWysylki(item.AuctionId.Value);}'
+                                  Variant="Variant.Text"
+                                  ButtonStyle="@ButtonStyle.Info"
+                                  Text="Pokaz dane do wysyłki" />
                 }
 
             </RadzenStack>
@@ -99,32 +116,77 @@
     public IEnumerable<DB.Models.IItem> Data { get; set; }
     [Parameter]
     public string Title { get; set; }
-
+    public bool ZakonczenieAukcji { get; set; } = false;
     [Parameter]
     public DB.Models.TypKomponentuItem TypKomponentuItem { get; set; } = DB.Models.TypKomponentuItem.Brak;
 
-    private int? konczonaAukcjaId = null;
+    private int konczonaAukcjaId;
+
+    [Parameter]
+    public EventCallback OdswiezDane { get; set; }
+
+    public DB.Models.AuthModel User { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        Dialog.OnClose += FinishAuctionEvent;
+        User = await CustomAuthProvider.GetUser();
     }
 
-    public async void FinishAuction(int auctionId)
+    public async Task FinishAuction(int auctionId)
     {
-        Dialog.OnClose += FinishAuctionEvent;
-        await Dialog.Confirm("Potwierdzenie", "Na pewno chcesz zakończyć aukcje?",
-                 new ConfirmOptions() { OkButtonText = "Tak", CancelButtonText = "Nie" });
+        await Mediator.Send(new DB.Modules.Auction.Command.FinishMyAuction.Request()
+            {
+                UserId = UserId,
+                AuctionId = auctionId
+            });
+        ZakonczenieAukcji = false;
+        await OdswiezDane.InvokeAsync();
+
     }
 
-            public async void FinishAuctionEvent(dynamic auctionId)
-            {
-                await Mediator.Send(new FinishMyAuction.Request()
-                {
-                    UserId = UserId,
-                AuctionId = konczonaAukcjaId.Value
-                });
+    public async Task DajDaneDoWysylki(int auctionId)
+    {
+        var daneDoWysylki = await Mediator.Send(new DB.Modules.Payment.Queries.GetPostalData.Request()
+                    {
+                        AuctionId = auctionId,
+                        UserId = User.Id
+                    });
 
-            }
+        await Dialog.OpenAsync("Dane do wysyłki", ds =>
+            {
+    return @<div>
+        <RadzenFieldset Text="Adres">
+            <RadzenRow AlignItems="AlignItems.Center">
+                <RadzenColumn Size="12" SizeMD="12">
+                    <RadzenTextBox @bind-Value="daneDoWysylki.Adress" Disabled="true" />
+                </RadzenColumn>
+            </RadzenRow>
+        </RadzenFieldset>
+
+        <RadzenFieldset Text="Kod pocztowy">
+            <RadzenRow AlignItems="AlignItems.Center">
+                <RadzenColumn Size="12" SizeMD="12">
+                    <RadzenTextBox @bind-Value="daneDoWysylki.PostCode" Disabled="true" />
+                </RadzenColumn>
+            </RadzenRow>
+        </RadzenFieldset>
+
+        <RadzenFieldset Text="Numer telefonu">
+            <RadzenRow AlignItems="AlignItems.Center">
+                <RadzenColumn Size="12" SizeMD="12">
+                    <RadzenTextBox @bind-Value="daneDoWysylki.PhoneNumber" Disabled="true" />
+                </RadzenColumn>
+            </RadzenRow>
+        </RadzenFieldset>
+    </div>;
+    }, new Radzen.DialogOptions()
+    {
+        CssClass = "custom-dialog-class",
+        WrapperCssClass = "custom-dialog-wrapper-class"
+    });
+    }
+
+
+  
 
 }

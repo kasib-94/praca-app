@@ -10,9 +10,9 @@ namespace DB.Domain.Entities
     {
         [Display(Name = "Kup teraz")]
         Instant = 1,
-        [Display(Name = "Kup teraz 14 dni")]
+        [Display(Name = "Licytacja 14 dni")]
         Days_14 = 2,
-        [Display(Name = "Kup teraz 7 dni")]
+        [Display(Name = "Licytacja 7 dni")]
         Days_7 = 3,
         [Display(Name = "Kup teraz albo licytuj 7 dni")]
         Days_7_With_Instant = 4,

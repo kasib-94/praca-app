@@ -2,123 +2,175 @@
 @using Syncfusion.Blazor.RichTextEditor;
 @inject NavigationManager uriHelper;
 <div class="col-12">
-    <div class="col-6 mx-auto">
-        <Syncfusion.Blazor.DataForm.SfDataForm ID="MyForm"  
-                                               Model="@Model"
-                                               OnSubmit="HandleSubmit">
-            <FormValidator>
-                <DataAnnotationsValidator></DataAnnotationsValidator>
-            </FormValidator>
-            <FormItems>
-                <FormItem Field="@nameof(Model.AuctionType)"  LabelText="Typ aukcji">
-                    <Template>
-                        <Syncfusion.Blazor.DropDowns.SfDropDownList 
-                        TValue="int" 
-                        TItem="DB.SD.DropDownModel"
-                        Placeholder="Wybierz typ aukcji" 
-                        DataSource="@Lista"
+    <div class="col-10 mx-auto">
+     
 
-                        ValueChanged="(int value)=> {Model.AuctionType = (DB.Domain.Entities.AuctionType)value;StateHasChanged();}">
-                        <Syncfusion.Blazor.DropDowns.DropDownListFieldSettings Value="Id" Text="Name" />
-                        </Syncfusion.Blazor.DropDowns.SfDropDownList>
-                    </Template>
-                </FormItem>
+<RadzenTemplateForm Data="@Model" TItem="@DB.Models.NewAuction" Submit="async(item) =>{await HandleSubmit(item);}">
+    <RadzenStack Gap="1rem" class="rz-p-0 rz-p-lg-4">
+
+        <!-- Auction Type Section -->
+                <RadzenFieldset Text="Typ aukcji">
+                    <RadzenRow AlignItems="AlignItems.Center">
+                        <RadzenColumn Size="12" SizeMD="12">
+                            <RadzenDropDown Data="@Lista"
+                                            TextProperty="Nazwa"
+                                            ValueProperty="Id"
+                                            Value="Model.AuctionType"
+                                            ValueChanged="(DB.Domain.Entities.AuctionType type)=>{
+                                            Model.AuctionType = type; StateHasChanged();}"
+                                            Style="width: 100%; max-width: 400px;"
+                                            Name="AuctionType"
+                                            >
+                            </RadzenDropDown>
+                        </RadzenColumn>
+                    </RadzenRow>
+                </RadzenFieldset>
+
+
+        <!-- Title Section -->
+        <RadzenFieldset Text="Tytuł">
+            <RadzenRow AlignItems="AlignItems.Center">
+      
+                <RadzenColumn Size="12" SizeMD="12">
+                    <RadzenTextBox 
+                        @bind-Value="Model.Title" 
+                        Placeholder="Tytuł" 
+                        Style="width: 100%;" />
+                </RadzenColumn>
+            </RadzenRow>
+        </RadzenFieldset>
+
+        <!-- Pricing Section -->
+ 
+                    @if (DB.SD.AuctionSD.IsAuction(Model.AuctionType))
+                {
+            <RadzenFieldset Text="Cena wywoławcza">
+                <RadzenStack Gap="1rem">
+                    
+                        <RadzenRow AlignItems="AlignItems.Center">
+                      
+                            <RadzenColumn Size="12" SizeMD="12">
+                                <RadzenNumeric @bind-Value="Model.PriceAuction"
+                                               Placeholder="Cena wywoławcza"
+                                               Style="width: 100%;" />
+                            </RadzenColumn>
+                        </RadzenRow>
+                                
+                </RadzenStack>
+            </RadzenFieldset>
+                    }
+                @if (DB.SD.AuctionSD.IsInstantBuy(Model.AuctionType))
+                {
+                    <RadzenFieldset Text="Cena kup teraz">
+                        <RadzenStack Gap="1rem">
                
-               
-                <FormItem Field="@nameof(Model.Title)" LabelText="Tytuł"></FormItem>
-              <FormItem Field="@nameof(Model.Description)" LabelText="Opis">
-                 <Template>
-                     <Syncfusion.Blazor.RichTextEditor.SfRichTextEditor 
-                     Value="@Model.Description" 
-                     ValueChanged="(string value)=>{Model.Description = value;}"
-                     ValueExpression="()=>Model.Description"
-                     >
-                          <RichTextEditorToolbarSettings EnableFloating=true Items="@Tools" />
-                          <RichTextEditorQuickToolbarSettings  Link="@Link" />
-                      </Syncfusion.Blazor.RichTextEditor.SfRichTextEditor>
-                    </Template>
-                </FormItem>
+                          
+                                <RadzenRow AlignItems="AlignItems.Center">
+
+                                    <RadzenColumn Size="12" SizeMD="12">
+                                        <RadzenNumeric @bind-Value="Model.PriceInstant"
+                                                       Placeholder="Cena kup teraz"
+                                                       Style="width: 100%;" />
+                                    </RadzenColumn>
+                                </RadzenRow>
+                           
+                        </RadzenStack>
+                    </RadzenFieldset>
+                    }
+        
+
+        <!-- Upload Photos Section -->
+        <RadzenFieldset Text="Zdjęcia">
 
 
-                <FormItem Field="@nameof(Model.Photos)" LabelText="Zdjęcia">
-                    <Template>
-                        <SfUploader   MaxFileSize="5000000" AllowMultiple=true AutoUpload="true">
-                            <UploaderEvents ValueChange="@OnChange"></UploaderEvents>
-                            <UploaderButtons >
-                         
-                            </UploaderButtons>
-                        </SfUploader>
-                    </Template>
-                </FormItem>
-              
-            </FormItems>
-            @if (DB.SD.AuctionSD.IsAuction(Model.AuctionType))
-            {
-                <FormItems>
-                <FormItem Field="@nameof(Model.PriceAuction)" LabelText="Cena wywoławcza" ColumnSpan="6"></FormItem>
-                </FormItems>
-            }
-            @if (DB.SD.AuctionSD.IsInstantBuy(Model.AuctionType))
-            {
-            <FormItems>
+                    <RadzenUpload id="ddUpload" @ref="uploadDD"
+                                  ChooseText="Kliknij albo przerzuć tu pliki"
+                                  Auto="false" Multiple="true"
+                                  Change="OnChange"
+                                  InputAttributes="@(new Dictionary<string,object>(){ { "aria-label", "select file" }})"
+                                  Style="width: 100%" />
 
-                    <FormItem Field="@nameof(Model.PriceInstant)" LabelText="Cena kup teraz" ColumnSpan="6"></FormItem>
-            </FormItems>
-                }
-        </Syncfusion.Blazor.DataForm.SfDataForm>
+
+        </RadzenFieldset>
+
+        <!-- Description Section -->
+        <RadzenFieldset Text="Opis przedmiotu">
+            <RadzenHtmlEditor 
+                @bind-Value="Model.Description" 
+                style="height: 450px;"
+                Placeholder="Opis przedmiotu" />
+        </RadzenFieldset>
+
+    
+
+       
+
+        <!-- Submit Button -->
+        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" Gap="1rem" class="rz-mt-4">
+            <RadzenButton Text="Zatwierdź" ButtonType="Radzen.ButtonType.Submit" Icon="save" Style="width: 150px;" />
+      
+        </RadzenStack>
+
+    </RadzenStack>
+</RadzenTemplateForm>
     </div>
 </div>
+
 
 @code {
     public DB.Models.NewAuction Model { get; set; } = new();
     public List<string> AllowedExtensions = new() { ".jpg", ".png"};
-  
+    RadzenUpload uploadDD;
     [CascadingParameter]
     public AuthModel Auth
     {
         get; set;
     }
 
-    private List<ToolbarItemModel> Tools = new List<ToolbarItemModel>()
-    {
-         new ToolbarItemModel() { Command = ToolbarCommand.Bold },
-        new ToolbarItemModel() { Command = ToolbarCommand.Italic },
-        new ToolbarItemModel() { Command = ToolbarCommand.Underline },
-        new ToolbarItemModel() { Command = ToolbarCommand.StrikeThrough },
-        new ToolbarItemModel() { Command = ToolbarCommand.FontName },
-        new ToolbarItemModel() { Command = ToolbarCommand.FontSize },
-        new ToolbarItemModel() { Command = ToolbarCommand.Separator },
-        new ToolbarItemModel() { Command = ToolbarCommand.FontColor },
-        new ToolbarItemModel() { Command = ToolbarCommand.BackgroundColor },
-        new ToolbarItemModel() { Command = ToolbarCommand.Separator },
-        new ToolbarItemModel() { Command = ToolbarCommand.Formats },
-        new ToolbarItemModel() { Command = ToolbarCommand.Alignments },
 
 
-    };
-    private List<LinkToolbarItemModel> Link = new List<LinkToolbarItemModel>()
-    {
-        new LinkToolbarItemModel() { Command = LinkToolbarCommand.Open },
-        new LinkToolbarItemModel() { Command = LinkToolbarCommand.Edit },
-        new LinkToolbarItemModel() { Command = LinkToolbarCommand.UnLink }
-    };
-
-    List<DB.SD.DropDownModel> Lista { get; set; }
+    IEnumerable<DB.SD.EnumHelper.DropDown<DB.Domain.Entities.AuctionType>> Lista { get; set; }
     protected override async Task OnInitializedAsync()
     {
-        Lista = DB.SD.EnumHelper.GetEnumDisplayNames<DB.Domain.Entities.AuctionType>().ToList();
+        Lista = DB.SD.EnumHelper.GetEnumDisplayNames<DB.Domain.Entities.AuctionType>();
     }
 
-    private async Task OnChange(Syncfusion.Blazor.Inputs.UploadChangeEventArgs args)
+
+   
+
+    private async Task OnChange(Radzen.UploadChangeEventArgs args)
     {
         try
         {
+            // Sprawdzanie, czy są pliki
+            if (args.Files == null || !args.Files.Any())
+            {
+                return;
+            }
+
             foreach (var file in args.Files)
             {
-                var path = @"" + file.FileInfo.Name;
+                if (file == null)
+                {
+                    continue;
+                }
+                var path = Path.Combine("Uploads", file.Name);  // Używamy file.Name, ponieważ to jest Radzen.File
                 using (MemoryStream memoryStream = new MemoryStream())
                 {
-                    await file.File.OpenReadStream(long.MaxValue).CopyToAsync(memoryStream);
+                    var stream = file.OpenReadStream(long.MaxValue);
+                    if (stream == null)
+                    {
+                        continue;
+                    }
+
+                    await stream.CopyToAsync(memoryStream);
+
+                    // Zapisujemy plik na dysku
+                    var uploadFolder = Path.Combine(Directory.GetCurrentDirectory(), "Uploads");
+                    if (!Directory.Exists(uploadFolder))
+                    {
+                        Directory.CreateDirectory(uploadFolder);
+                    }
 
                     using (var fileStream = new FileStream(path, FileMode.Create, FileAccess.Write))
                     {
@@ -126,12 +178,13 @@
                         await memoryStream.CopyToAsync(fileStream);
                     }
 
+                    // Dodanie zdjęcia do modelu
                     var imageData = memoryStream.ToArray();
 
                     Model.Photos.Add(new DB.Models.Photo()
                         {
                             Order = Model.Photos.Count,
-                            Extension = Path.GetExtension(file.FileInfo.Name),
+                            Extension = Path.GetExtension(file.Name),
                             ImageData = imageData
                         });
                 }
@@ -139,13 +192,33 @@
         }
         catch (Exception ex)
         {
-            
+    
+        }
+        finally
+        {
+
+            var uploadFolder = Path.Combine(Directory.GetCurrentDirectory(), "Uploads");
+            if (Directory.Exists(uploadFolder))
+            {
+                var files = Directory.GetFiles(uploadFolder);
+                foreach (var file in files)
+                {
+                    try
+                    {
+                        File.Delete(file);
+                    }
+                    catch (Exception deleteEx)
+                    {
+
+                    }
+                }
+            }
         }
     }
 
-    private async Task HandleSubmit(EditContext model)
+  
+    private async Task HandleSubmit(DB.Models.NewAuction item)
     {
-        var item = model.Model as DB.Models.NewAuction;
         var aukcjaId = await Mediator.Send(new DB.Modules.Auction.Command.CreateAuction.Request()
         {
                 Description = item.Description,

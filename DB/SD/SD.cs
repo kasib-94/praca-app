@@ -39,7 +39,13 @@ namespace DB.SD
                             ?.GetName() ?? enumValue.ToString();
         }
 
-        public static List<DropDownModel> GetEnumDisplayNames<T>() where T : Enum
+        public class DropDown<T> where T : Enum
+        {
+            public T Id { get; set; }
+            public string Nazwa { get; set; }
+        }
+
+        public static List<DropDown<T>> GetEnumDisplayNames<T>() where T : Enum
         {
             var type = typeof(T);
 
@@ -51,10 +57,10 @@ namespace DB.SD
                            var displayAttribute = memberInfo.GetCustomAttribute<DisplayAttribute>();
                            var displayName = displayAttribute?.Name ?? x.ToString();
 
-                           return new DropDownModel
+                           return new DropDown<T>
                            {
-                               Id = Convert.ToInt32(x),
-                               Name = displayName
+                               Id = x,
+                               Nazwa = displayName
                            };
                        })
                        .ToList();

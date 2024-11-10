@@ -1,4 +1,6 @@
 ﻿using DB.Domain;
+using DB.Domain.Entities;
+using DB.Models;
 
 using FluentValidation;
 
@@ -16,11 +18,11 @@ namespace DB.Modules.Auction.Queries
             public int UserId { get; set; }
         }
 
-        public class Response
+        public class Response : IItem
         {
             public byte[]? Minature { get; set; }
             public string Title { get; set; }
-            public int Id { get; set; }
+            public int? AuctionId { get; set; }
 
             public string? Extension { get; set; }
 
@@ -28,7 +30,12 @@ namespace DB.Modules.Auction.Queries
             public int? BuyerId { get; set; }
             public DateTime DateFinish { get; set; }
 
-            public DB.Domain.Entities.AuctionType AuctionType { get; set; }
+            public int? OwnerId { get; set; }
+            public string OwnerName { get; set; }
+
+            public AuctionType Type { get; set; }
+            public DB.Domain.Entities.AuctionStatusType Status { get; set; }
+
         }
         private class Handler : IRequestHandler<Request, List<Response>>
         {
@@ -56,15 +63,19 @@ namespace DB.Modules.Auction.Queries
                                       : null,
 
                           Title = x.Title,
-                          Id = x.Id,
+                          AuctionId = x.Id,
                           DateFinish = x.Status.First(y => y.Type == Domain.Entities.AuctionStatusType.Finished).ActionDate,
-                          AuctionType = x.Type,
+                          Type = x.Type,
                           BuyerName = x.Buyer == null
                                     ? null
                                     : x.Buyer.Username,
                           BuyerId = x.Buyer == null
                                     ? null
-                                    : x.Buyer.Id
+                                    : x.Buyer.Id,
+                          OwnerId = x.UserId,
+                          Status = x.Payments.Any(x => x.StripeStatus == StripeStatus.Success)
+                                     ? AuctionStatusType.PaymentConfirmed
+                                     : AuctionStatusType.Finished
 
 
 

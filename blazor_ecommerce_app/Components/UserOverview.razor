@@ -36,15 +36,45 @@
     {
         <ItemComponent Data="@_activeAuctions"
                        UserId="@UserId"
+                       OdswiezDane="FetchData"
                        Title="Aktywne aukcje" />
     }
     @if (_WaitingToPayAuctions.Any())
     {
             <ItemComponent Data="@_WaitingToPayAuctions"
                        UserId="@UserId"
+                           OdswiezDane="FetchData"
                        TypKomponentuItem="@DB.Models.TypKomponentuItem.DoZaplaty"
                        Title="Aukcje do opłacenia" />
     }
+        @if (_OpłaconeAukcje.Any())
+        {
+            <ItemComponent Data="@_OpłaconeAukcje"
+                           UserId="@UserId"
+                           OdswiezDane="FetchData"
+                           TypKomponentuItem="@DB.Models.TypKomponentuItem.Oplacone"
+                           Title="Opłacone" />
+        }
+
+        if (_finishedAuctions.Any())
+        {
+            <ItemComponent Data="@_daneAdresowePotwierdzone"
+                           UserId="@UserId"
+                           OdswiezDane="FetchData"
+                           TypKomponentuItem="@DB.Models.TypKomponentuItem.Oplacone"
+                           Title="Opłacone" />
+        }
+
+        if (_finishedAuctions.Any())
+        {
+            <ItemComponent Data="@_finishedAuctions"
+                           UserId="@UserId"
+                           OdswiezDane="FetchData"
+                           TypKomponentuItem="@DB.Models.TypKomponentuItem.AukcjeZakonczone"
+                           Title="Oczekuje na zapłatę" />
+        }
+
+      
     }
 </blazor_ecommerce_app.Components.BaseAuthroziedComponent>
 @code {
@@ -55,8 +85,13 @@
     private List<DB.Models.IItem> _activeAuctions => ActiveAuctions?.Cast<DB.Models.IItem>().ToList();
 
     public List<DB.Modules.Auction.Queries.GetListOfAuctions.Response> WaitingToPayAuctions { get; set; } = new();
-    private List<DB.Models.IItem> _WaitingToPayAuctions => WaitingToPayAuctions?.Cast<DB.Models.IItem>().ToList();
+    private List<DB.Models.IItem> _WaitingToPayAuctions => WaitingToPayAuctions.Where(x=>x.Status == DB.Domain.Entities.AuctionStatusType.Finished)?.Cast<DB.Models.IItem>().ToList();
+    private List<DB.Models.IItem> _OpłaconeAukcje => WaitingToPayAuctions.Where(x => x.Status == DB.Domain.Entities.AuctionStatusType.PaymentConfirmed)?.Cast<DB.Models.IItem>().ToList();
 
+    public List<DB.Modules.Auction.Queries.GetMyFinishedAuctions.Response> FinishedAuctions { get; set; } = new();
+    private List<DB.Models.IItem> _finishedAuctions => FinishedAuctions.Where(x=>x.Status == DB.Domain.Entities.AuctionStatusType.Finished)?.Cast<DB.Models.IItem>().ToList();
+    private List<DB.Models.IItem> _daneAdresowePotwierdzone => FinishedAuctions.Where(x => x.Status == DB.Domain.Entities.AuctionStatusType.PaymentConfirmed)?.Cast<DB.Models.IItem>().ToList();
+    
     public DB.Models.AuthModel User { get; set; }
     protected override async Task OnInitializedAsync()
     {
@@ -75,9 +110,14 @@
                 UserId = UserId
             });
 
-            if (User.Id == UserId)
+        if (User != null && User.Id == UserId)
         {
             WaitingToPayAuctions = await Mediator.Send(new DB.Modules.Auction.Queries.GetAuctionsIWon.Request()
+                {
+                    UserId = User.Id
+                });
+
+            FinishedAuctions = await Mediator.Send(new DB.Modules.Auction.Queries.GetMyFinishedAuctions.Request()
                 {
                     UserId = User.Id
                 });
