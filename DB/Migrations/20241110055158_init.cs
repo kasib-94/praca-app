@@ -131,6 +131,58 @@ namespace DB.Migrations
                         onDelete: ReferentialAction.Restrict);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "PostalData",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    AuctionId = table.Column<int>(type: "int", nullable: false),
+                    Adress = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PostCode = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Confirmed = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PostalData", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PostalData_Auctions_AuctionId",
+                        column: x => x.AuctionId,
+                        principalTable: "Auctions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_PostalData_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "StripeSessions",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    SessionId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    SessionUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AuctionId = table.Column<int>(type: "int", nullable: false),
+                    StripeStatus = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_StripeSessions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_StripeSessions_Auctions_AuctionId",
+                        column: x => x.AuctionId,
+                        principalTable: "Auctions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AuctionAttachments_AuctionId",
                 table: "AuctionAttachments",
@@ -160,6 +212,21 @@ namespace DB.Migrations
                 name: "IX_AuctionStatuses_AuctionId",
                 table: "AuctionStatuses",
                 column: "AuctionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PostalData_AuctionId",
+                table: "PostalData",
+                column: "AuctionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PostalData_UserId",
+                table: "PostalData",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_StripeSessions_AuctionId",
+                table: "StripeSessions",
+                column: "AuctionId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -172,6 +239,12 @@ namespace DB.Migrations
 
             migrationBuilder.DropTable(
                 name: "AuctionStatuses");
+
+            migrationBuilder.DropTable(
+                name: "PostalData");
+
+            migrationBuilder.DropTable(
+                name: "StripeSessions");
 
             migrationBuilder.DropTable(
                 name: "Auctions");

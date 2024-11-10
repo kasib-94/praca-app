@@ -335,7 +335,7 @@ namespace DB.Migrations
             modelBuilder.Entity("DB.Domain.Entities.StripeSession", b =>
                 {
                     b.HasOne("DB.Domain.Entities.Auction", "Auction")
-                        .WithMany()
+                        .WithMany("Payments")
                         .HasForeignKey("AuctionId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -348,6 +348,8 @@ namespace DB.Migrations
                     b.Navigation("Attachments");
 
                     b.Navigation("Offers");
+
+                    b.Navigation("Payments");
 
                     b.Navigation("Status");
                 });

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DB.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240712084815_addingPostalData")]
-    partial class addingPostalData
+    [Migration("20241110055158_init")]
+    partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -200,6 +200,35 @@ namespace DB.Migrations
                     b.ToTable("PostalData");
                 });
 
+            modelBuilder.Entity("DB.Domain.Entities.StripeSession", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int>("AuctionId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SessionId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SessionUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("StripeStatus")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AuctionId");
+
+                    b.ToTable("StripeSessions");
+                });
+
             modelBuilder.Entity("DB.Domain.Entities.User", b =>
                 {
                     b.Property<int>("Id")
@@ -305,11 +334,24 @@ namespace DB.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("DB.Domain.Entities.StripeSession", b =>
+                {
+                    b.HasOne("DB.Domain.Entities.Auction", "Auction")
+                        .WithMany("Payments")
+                        .HasForeignKey("AuctionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Auction");
+                });
+
             modelBuilder.Entity("DB.Domain.Entities.Auction", b =>
                 {
                     b.Navigation("Attachments");
 
                     b.Navigation("Offers");
+
+                    b.Navigation("Payments");
 
                     b.Navigation("Status");
                 });

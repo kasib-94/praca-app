@@ -65,7 +65,7 @@ namespace DB.Modules.Payment.Queries
                     var itemResult = _dbContext.PostalData
           .AsNoTracking()
            .Include(x => x.User)
-          .FirstOrDefault(x => x.UserId == request.UserId && x.AuctionId == request.AuctionId);
+          .FirstOrDefault(x => x.UserId == auction.BuyerId && x.AuctionId == request.AuctionId);
 
                     result.Adress = itemResult.Adress;
                     result.PhoneNumber = itemResult.PhoneNumber;

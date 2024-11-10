@@ -5,7 +5,6 @@
     return;
         <div class="d-flex row mx-auto">
 
-
     @if (string.IsNullOrEmpty(Title) == false)
     {
         <div class="mx-auto my-2 col-12">
@@ -25,11 +24,9 @@
     </Syncfusion.Blazor.Popups.SfDialog>
       
 @foreach (var item in Data)
-{
-      
+{    
             bool czyMaMiniaturke = item.Minature != null && item.Extension != null;
        
-
         <RadzenCard  class="col-4 my-3 mx-2 box-shadow-left-bottom" Style="max-width: 420px">      
             <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" Gap="1rem" class="rz-p-4">
                 @if (czyMaMiniaturke)
@@ -76,7 +73,8 @@
                         Text="@item.OwnerName" />
                 }
 
-                @if (czyTwojaAukcja && item.AuctionId.HasValue)
+                @if (czyTwojaAukcja && item.AuctionId.HasValue && item.Status != DB.Domain.Entities.AuctionStatusType.PaymentConfirmed 
+                && item.Status != DB.Domain.Entities.AuctionStatusType.Finished && item.Status != DB.Domain.Entities.AuctionStatusType.FinishedByOwner)
                 {
                     <RadzenButton Click='()=>{konczonaAukcjaId= item.AuctionId.Value; ZakonczenieAukcji = true; StateHasChanged();}'
                                   ButtonStyle="@ButtonStyle.Danger"
@@ -103,9 +101,7 @@
             </RadzenStack>
         </RadzenCard>
 }
-
 </div>
-
 @code {
 
     private  string _auctionPath = "/auctionview/";
@@ -158,7 +154,7 @@
         <RadzenFieldset Text="Adres">
             <RadzenRow AlignItems="AlignItems.Center">
                 <RadzenColumn Size="12" SizeMD="12">
-                    <RadzenTextBox @bind-Value="daneDoWysylki.Adress" Disabled="true" />
+                    <RadzenTextBox @bind-Value="daneDoWysylki.Adress" class="col-12" Disabled="true" />
                 </RadzenColumn>
             </RadzenRow>
         </RadzenFieldset>
@@ -166,7 +162,7 @@
         <RadzenFieldset Text="Kod pocztowy">
             <RadzenRow AlignItems="AlignItems.Center">
                 <RadzenColumn Size="12" SizeMD="12">
-                    <RadzenTextBox @bind-Value="daneDoWysylki.PostCode" Disabled="true" />
+                    <RadzenTextBox @bind-Value="daneDoWysylki.PostCode" class="col-12" Disabled="true" />
                 </RadzenColumn>
             </RadzenRow>
         </RadzenFieldset>
@@ -174,7 +170,7 @@
         <RadzenFieldset Text="Numer telefonu">
             <RadzenRow AlignItems="AlignItems.Center">
                 <RadzenColumn Size="12" SizeMD="12">
-                    <RadzenTextBox @bind-Value="daneDoWysylki.PhoneNumber" Disabled="true" />
+                    <RadzenTextBox @bind-Value="daneDoWysylki.PhoneNumber" class="col-12" Disabled="true" />
                 </RadzenColumn>
             </RadzenRow>
         </RadzenFieldset>
