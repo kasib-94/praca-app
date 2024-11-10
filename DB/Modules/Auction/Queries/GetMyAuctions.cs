@@ -49,7 +49,7 @@ namespace DB.Modules.Auction.Queries
                       .AsNoTracking()
                       .Where(x =>
                       x.UserId == request.UserId &&
-                      x.Status.Any(x => x.Type == Domain.Entities.AuctionStatusType.Finished) &&
+                      x.Status.Any(x => x.Type == Domain.Entities.AuctionStatusType.Finished) == false &&
                       x.Payments.Any(x => x.StripeStatus == StripeStatus.Success) == false)
                       .Select(x => new Response()
                       {
@@ -67,7 +67,7 @@ namespace DB.Modules.Auction.Queries
                           DateStarted = x.AuctionStart,
                           AuctionType = x.Type,
                           OwnerId = x.UserId,
-                          Status = AuctionStatusType.Finished
+                          Status = AuctionStatusType.Start
 
                       })
                       .ToListAsync(cancellationToken);

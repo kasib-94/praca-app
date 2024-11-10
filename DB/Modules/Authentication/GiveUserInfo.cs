@@ -46,7 +46,8 @@ namespace DB.Modules.Authentication
                         Id = x.Id,
                         UserName = x.Username,
                         Email = x.Email,
-                        AuctionsActive = x.Auctions.Where(y => y.Status.Any(w => w.Type == Domain.Entities.AuctionStatusType.Finished) == false).Count(),
+                        AuctionsActive = x.Auctions.Where(y => y.Status.Any(w => w.Type == Domain.Entities.AuctionStatusType.Finished == false &&
+                                                                                 w.Type == Domain.Entities.AuctionStatusType.FinishedByOwner == false)).Count(),
                         AuctionsNotSold = x.Auctions.Where(y => y.Status.Any(w => w.Type == Domain.Entities.AuctionStatusType.Finished) == true
                                                                               && y.BuyerId == null
                           ).Count(),
