@@ -1,6 +1,6 @@
 ﻿@using DB.Modules.Auction.Queries;
 @using DB.Modules.Auction.Command;
-
+<blazor_ecommerce_app.Components.BaseAuthroziedComponent>
 @if (UserModel != null)
 {
     <div class="card mx-auto col-6">
@@ -31,23 +31,40 @@
             </dl>
         </div>
     </div>
-}
 
-<ItemComponent 
-    Data="@_activeAuctions"
-    UserId="@UserId"
-    Title="Aktywne aukcje"
-    />
-
+    @if (ActiveAuctions.Any())
+    {
+        <ItemComponent Data="@_activeAuctions"
+                       UserId="@UserId"
+                       Title="Aktywne aukcje" />
+    }
+    @if (_WaitingToPayAuctions.Any())
+    {
+            <ItemComponent Data="@_WaitingToPayAuctions"
+                       UserId="@UserId"
+                       TypKomponentuItem="@DB.Models.TypKomponentuItem.DoZaplaty"
+                       Title="Aukcje do opłacenia" />
+    }
+    }
+</blazor_ecommerce_app.Components.BaseAuthroziedComponent>
 @code {
 
     [Parameter] public int UserId { get; set; }
     public DB.Modules.Authentication.GiveUserInfo.Response UserModel { get; set; }
-    public List<DB.Modules.Auction.Queries.GetMyAuctions.Response> ActiveAuctions { get; set; }
+    public List<DB.Modules.Auction.Queries.GetMyAuctions.Response> ActiveAuctions { get; set; } =new();
     private List<DB.Models.IItem> _activeAuctions => ActiveAuctions?.Cast<DB.Models.IItem>().ToList();
 
+    public List<DB.Modules.Auction.Queries.GetListOfAuctions.Response> WaitingToPayAuctions { get; set; } = new();
+    private List<DB.Models.IItem> _WaitingToPayAuctions => WaitingToPayAuctions?.Cast<DB.Models.IItem>().ToList();
 
+    public DB.Models.AuthModel User { get; set; }
     protected override async Task OnInitializedAsync()
+    {
+        User = await CustomAuthProvider.GetUser();
+        await FetchData();
+    }
+
+    public async Task FetchData()
     {
         ActiveAuctions = await Mediator.Send(new DB.Modules.Auction.Queries.GetMyAuctions.Request()
             {
@@ -57,6 +74,16 @@
             {
                 UserId = UserId
             });
+
+            if (User.Id == UserId)
+        {
+            WaitingToPayAuctions = await Mediator.Send(new DB.Modules.Auction.Queries.GetAuctionsIWon.Request()
+                {
+                    UserId = User.Id
+                });
+        }
+
+        StateHasChanged();
     }
 
 }

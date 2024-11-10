@@ -34,8 +34,8 @@ namespace DB.Modules.Payment.Queries
 
                 var stripeSessionDto = new StripeSessionDto();
                 var auction = _dbContext.Auctions
-                    .Include(x => x.Offers)
                     .AsNoTracking()
+                    .Include(x => x.Offers)
                     .First(x => x.Id == request.AuctionId);
                 try
                 {

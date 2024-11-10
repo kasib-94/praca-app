@@ -12,8 +12,8 @@
                 <DataAnnotationsValidator></DataAnnotationsValidator>
             </FormValidator>
             <FormItems>
-                <FormItem Field="@nameof(Model.Username)"></FormItem>
-                <FormItem EditorType="@FormEditorType.Password" Field="@nameof(Model.Password)"></FormItem>
+                <FormItem Field="@nameof(Model.Username)" LabelText="Nazwa użytkownika"></FormItem>
+                <FormItem EditorType="@FormEditorType.Password" LabelText="Hasło" Field="@nameof(Model.Password)"></FormItem>
             </FormItems>
         </Syncfusion.Blazor.DataForm.SfDataForm>
     </div>

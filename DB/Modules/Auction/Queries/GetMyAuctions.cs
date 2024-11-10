@@ -32,6 +32,7 @@ namespace DB.Modules.Auction.Queries
             public DateTime DateStarted { get; set; }
             public DB.Domain.Entities.AuctionType AuctionType { get; set; }
             public string OwnerName { get; set; }
+            public DB.Domain.Entities.AuctionStatusType Status { get; set; }
         }
         private class Handler : IRequestHandler<Request, List<Response>>
         {
@@ -48,7 +49,8 @@ namespace DB.Modules.Auction.Queries
                       .AsNoTracking()
                       .Where(x =>
                       x.UserId == request.UserId &&
-                      x.Status.Any(x => x.Type == Domain.Entities.AuctionStatusType.Finished) == false)
+                      x.Status.Any(x => x.Type == Domain.Entities.AuctionStatusType.Finished == false &&
+                                        x.Type == Domain.Entities.AuctionStatusType.FinishedByOwner == false))
                       .Select(x => new Response()
                       {
                           Minature = x.Attachments.Any()
@@ -64,8 +66,8 @@ namespace DB.Modules.Auction.Queries
                           DateFinish = x.AuctionFinish,
                           DateStarted = x.AuctionStart,
                           AuctionType = x.Type,
-                          OwnerId = x.UserId
-
+                          OwnerId = x.UserId,
+                          Status = AuctionStatusType.Finished
 
                       })
                       .ToListAsync(cancellationToken);

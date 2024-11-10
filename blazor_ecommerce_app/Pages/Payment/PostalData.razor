@@ -9,14 +9,15 @@
 @if (Model.Confirmed)
 {
     <div class="col-12">
-        <span >Address data is confirmed</span>
-        <SfButton OnClick="CreateStripeSession">Pay now!</SfButton>
+        <RadzenAlert Variant="@Variant.Filled" AlertStyle="@AlertStyle.Success" Size="@AlertSize.Large" Shade="Shade.Default" AllowClose=false>
+            Dane adresowe są zatwierdzone <br />
+        </RadzenAlert>
     </div>
 
 }else{
-    <div class="col-12">
-        <span >Confirm address details!</span>
-    </div>
+    <RadzenAlert Variant="@Variant.Filled" AlertStyle="@AlertStyle.Info" Size="@AlertSize.Large" Shade="Shade.Default" AllowClose=false>
+        Zatwierdź dane adresowe <br />
+    </RadzenAlert>
   
 }
 @if (Model.BrakDostepu == false)
@@ -36,18 +37,22 @@
             @if (Model.Confirmed == false)
         {
             <FormItems>
-                <FormItem   IsEnabled="true" Field="@nameof(Model.Adress)" Placeholder="Adress" LabelText="Adress"></FormItem>
-                <FormItem IsEnabled="true" Field="@nameof(Model.PostCode)" Placeholder="Post code" LabelText="Post code"></FormItem>
-                <FormItem IsEnabled="true" Field="@nameof(Model.PhoneNumber)" Placeholder="Phone number" LabelText="Phone number"></FormItem>
+                <FormItem IsEnabled="false" Field="@nameof(Model.Kwota)" Placeholder="Kwota do zapłaty" LabelText="Kwota do zapłaty"></FormItem>
+                <FormItem IsEnabled="true" Field="@nameof(Model.Adress)"  Placeholder="Adres" LabelText="Adres"></FormItem>
+                <FormItem IsEnabled="true" Field="@nameof(Model.PostCode)" Placeholder="Kod pocztowy" LabelText="Kod pocztowy"></FormItem>
+                <FormItem IsEnabled="true" Field="@nameof(Model.PhoneNumber)" Placeholder="Numer telefonu" LabelText="Numer telefonu"></FormItem>
+   
             </FormItems>
             }
             else
             {
             <FormItems>
-                <FormItem IsEnabled="false" Field="@nameof(Model.Adress)" Placeholder="Adress" LabelText="Adress"></FormItem>
-                <FormItem IsEnabled="false" Field="@nameof(Model.PostCode)" Placeholder="Post code" LabelText="Post code"></FormItem>
-                <FormItem IsEnabled="false" Field="@nameof(Model.PhoneNumber)" Placeholder="Phone number" LabelText="Phone number"></FormItem>
-                   </FormItems>
+                <FormItem IsEnabled="false" Field="@nameof(Model.Kwota)" Placeholder="Kwota do zapłaty" LabelText="Kwota do zapłaty"></FormItem>
+                <FormItem IsEnabled="false" Field="@nameof(Model.Adress)" Placeholder="Adres" LabelText="Adres"></FormItem>
+                <FormItem IsEnabled="false" Field="@nameof(Model.PostCode)" Placeholder="Kod pocztowy" LabelText="Kod pocztowy"></FormItem>
+                <FormItem IsEnabled="false" Field="@nameof(Model.PhoneNumber)" Placeholder="Numer telefonu" LabelText="Numer telefonu"></FormItem>
+              
+             </FormItems>
             }
 
        
@@ -56,21 +61,18 @@
         <FormButtons>
             @if (Model.Confirmed == false)
             {
-                    <SfButton>Confirm address details</SfButton>
+                    <SfButton>Zatwierdź</SfButton>
                 }
                 else
                 {
-                    <SfButton>Change address details</SfButton>
+                    <SfButton OnClick="CreateStripeSession">Zapłać</SfButton> <SfButton>Zmień dane adresowe</SfButton>
                 }
 
         </FormButtons>
 
     </SfDataForm>
 }
-else
-{
-    <span>Brak dostepu!!</span>
-}
+
 
 
 

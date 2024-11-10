@@ -33,6 +33,7 @@ namespace DB.Modules.Auction.Queries
             public DateTime DateStarted { get; set; }
             public DB.Domain.Entities.AuctionType AuctionType { get; set; }
             public AuctionType Type { get; set; }
+            public DB.Domain.Entities.AuctionStatusType Status { get; set; }
         }
         private class Handler : IRequestHandler<Request, List<Response>>
         {
@@ -51,7 +52,8 @@ namespace DB.Modules.Auction.Queries
                       .Include(x => x.Attachments)
                       .Include(x => x.Status)
                       .Include(x => x.User)
-                      .Where(x => x.Status.Any(x => x.Type == Domain.Entities.AuctionStatusType.Finished) == false)
+                      .Where(x => x.Status.Any(x => x.Type == Domain.Entities.AuctionStatusType.Finished) == false
+                               && x.Status.Any(x => x.Type == AuctionStatusType.FinishedByOwner) == false)
                       .ToListAsync(cancellationToken);
 
                 var aukcjeDoUsuniecia = aukcje.Where(x => x.AuctionFinish < DateTime.Now);

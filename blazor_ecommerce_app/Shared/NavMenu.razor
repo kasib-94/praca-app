@@ -7,37 +7,38 @@
         data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
-        @if (Auth != null && Auth.Id > 0)
+        @if (User != null && User.Id > 0)
         {
             <li class="nav-item dropdown navbar-nav">
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                Account managment
+                Zarządzaj kontem
             </a>
                 <div class="dropdown-menu bg-dark" aria-labelledby="navbarDropdown">
-                <a class="dropdown-item nav-link" href="/newauction">Create new auction</a>
-                    <a class="dropdown-item nav-link" href="/myprofile">My profile</a>
-                    <a class="dropdown-item nav-link" href="/auctionswon">Auctions won</a>
-                    <a class="dropdown-item nav-link" href="/auctionswon">Archival auctions</a>
+                <a class="dropdown-item nav-link" href="/newauction">Stwórz nową aukcję</a>
+                    <a class="dropdown-item nav-link" href="/myprofile">Mój profil</a>
+                    <a class="dropdown-item nav-link" href="/auctionswon">Wygrane aukcje</a>
+
 
             </div>
         </li> 
         }
             <ul class="navbar-nav ml-auto pt-1">
-                @if(Auth == null || Auth.Id <= 0){
+            @if (User == null || User.Id <= 0)
+            {
                 <li class="nav-item">
-                    <a class="nav-link" href="/login">Login</a>
+                    <a class="nav-link" href="/login">Zaloguj się</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/register">Register</a>
+                    <a class="nav-link" href="/register">Rejestracja</a>
                 </li>
             }
             else
             {
                 <li class="nav-item">
-                    <span class="nav-link" >Hello, @Auth.Username</span>
+                    <span class="nav-link">Witaj, @User.Username</span>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/logout">Logout</a>
+                    <a class="nav-link" href="/logout">Wyloguj się</a>
                 </li>
             }
          
@@ -47,8 +48,8 @@
 </nav>
 
 @code {
-    [Parameter]
-    public AuthModel Auth { get; set; }
+
+    public DB.Models.AuthModel User { get; set; }
 
     public byte[] Logo
     {
@@ -56,6 +57,7 @@
     }
     protected override async Task OnInitializedAsync()
     {
+        User = await CustomAuthProvider.GetUser();
         var filePath = Path.Combine(WebHostEnvironment.WebRootPath, "img", "logo.webp");
         Logo = File.ReadAllBytes(filePath);
     }

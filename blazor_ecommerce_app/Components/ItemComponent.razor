@@ -3,7 +3,7 @@
 
 @if (Data == null)
     return;
-        <div class="d-flex row">
+        <div class="d-flex row mx-auto">
 
 
     @if (string.IsNullOrEmpty(Title) == false)
@@ -12,20 +12,39 @@
             <RadzenText TextAlign=@TextAlign.Center TextStyle="TextStyle.H4">@Title</RadzenText>
         </div>
     }
+   
+      
 @foreach (var item in Data)
 {
- 
-     
-        <RadzenCard  class="col-4 mx-auto box-shadow-left-bottom" Style="max-width: 420px">
+      
+            bool czyMaMiniaturke = item.Minature != null && item.Extension != null;
+       
+
+        <RadzenCard  class="col-4 my-3 mx-2 box-shadow-left-bottom" Style="max-width: 420px">      
+            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" Gap="1rem" class="rz-p-4">
+                @if (czyMaMiniaturke)
+                {
+                    <RadzenImage Path="@(DB.SD.ImageHelper.GetImageDataUrl(item.Minature, item.Extension))" Style="width: 150px; height: 150px; border-radius: 50%;" />
+                }
+
            
-            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" Gap="1rem" class="rz-p-4">
-                <RadzenImage Path="@(DB.SD.ImageHelper.GetImageDataUrl(item.Minature, item.Extension))" Style="width: 150px; height: 150px; border-radius: 50%;" />
-                <RadzenStack Gap="0">
+
+                <RadzenStack Gap="10px">
+                    @if (item.Status == DB.Domain.Entities.AuctionStatusType.PaymentConfirmed)
+                    {
+                        <RadzenBadge Shade="Shade.Dark" BadgeStyle="BadgeStyle.Success" Text="Opłacone" />
+                    }
+
+                    @if (item.Status == DB.Domain.Entities.AuctionStatusType.Finished)
+                    {
+                        <RadzenBadge Shade="Shade.Dark" BadgeStyle="BadgeStyle.Warning" Text="Do zapłaty" />
+                    }
+                   
                     <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-2 rz-my-0">Przedmiot</RadzenText>
                     <RadzenText TextStyle="TextStyle.Body1"><b>@(item.Title)</b></RadzenText>
                 </RadzenStack>
             </RadzenStack>
-            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" Gap="0">
+            <RadzenStack Style="@(czyMaMiniaturke ? "" : "margin-top: 98px !important")"  Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" Gap="0">
 
               @{
                   bool czyTwojaAukcja = item.OwnerId == UserId && item.OwnerId != null;
@@ -34,39 +53,55 @@
                 @if(item.AuctionId != null )
                 {
                     <RadzenButton Variant="Variant.Text" class="rz-text-secondary-color"
+                                  ButtonStyle="@ButtonStyle.Secondary"
                                   Click="() =>{ Navigation.NavigateTo(_auctionPath+item.AuctionId, forceLoad : true);}"
                     Text="Pokaż " />
                 }
 
                 @if (item.OwnerId != null && czyTwojaAukcja == false)
                 {
-                    <RadzenButton Click='()=>{Navigation.NavigateTo("/user/"+item.OwnerId,forceLoad:true);}' Variant="Variant.Text" class="rz-text-primary-color" 
+                    <RadzenButton Click='()=>{Navigation.NavigateTo("/user/"+item.OwnerId,forceLoad:true);}'
+                        Variant="Variant.Text" class="rz-text-primary-color"
+                        ButtonStyle="@ButtonStyle.Primary"
                         Text="@item.OwnerName" />
                 }
 
                 @if (czyTwojaAukcja && item.AuctionId.HasValue)
                 {
-                    <RadzenButton Click='()=>{ FinishAuction(item.AuctionId.Value);}' Variant="Variant.Text" class="rz-text-danger-color"
+                    <RadzenButton Click='()=>{ FinishAuction(item.AuctionId.Value);}'
+                                  ButtonStyle="@ButtonStyle.Danger"
+                        Variant="Variant.Text" class="rz-text-danger-color"
                                   Text="Zakończ aukcje" />
 
                 }
 
+                @if (TypKomponentuItem == DB.Models.TypKomponentuItem.DoZaplaty)
+                {
+                    <RadzenButton Click='()=>{Navigation.NavigateTo(postaldata+item.AuctionId, forceLoad : true);}' 
+                        Variant="Variant.Text" 
+                        ButtonStyle="@ButtonStyle.Success"
+                       Text="Zapłać" /> 
+                }
+
             </RadzenStack>
         </RadzenCard>
-
-
 }
+
 </div>
 
 @code {
 
     private  string _auctionPath = "/auctionview/";
+    public string postaldata = "/postaldata/";
     [Parameter]
     public int UserId { get; set; }
     [Parameter]
     public IEnumerable<DB.Models.IItem> Data { get; set; }
     [Parameter]
     public string Title { get; set; }
+
+    [Parameter]
+    public DB.Models.TypKomponentuItem TypKomponentuItem { get; set; } = DB.Models.TypKomponentuItem.Brak;
 
     private int? konczonaAukcjaId = null;
 

@@ -56,6 +56,7 @@ namespace DB.Domain.Entities
         public ICollection<AuctionAttachment> Attachments { get; set; }
         public ICollection<AuctionStatus> Status { get; set; }
         public ICollection<AuctionOffers> Offers { get; set; }
+        public ICollection<StripeSession> Payments { get; set; }
     }
 
     public class AuctionConfiguration : IEntityTypeConfiguration<Auction>
@@ -64,7 +65,9 @@ namespace DB.Domain.Entities
         {
             builder.HasKey(x => x.Id);
 
-
+            builder.HasMany(x => x.Payments)
+                .WithOne()
+                .HasForeignKey(x => x.AuctionId);
 
             builder.Property(x => x.Title)
                 .IsRequired()

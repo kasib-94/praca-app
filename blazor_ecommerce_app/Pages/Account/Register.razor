@@ -16,10 +16,10 @@
                 <DataAnnotationsValidator></DataAnnotationsValidator>
             </FormValidator>
             <FormItems>
-                <FormItem Field="@nameof(Model.Username)"></FormItem>
-                <FormItem Field="@nameof(Model.Email)"></FormItem>
-                <FormItem EditorType="@FormEditorType.Password" Field="@nameof(Model.Password)"></FormItem>
-                <FormItem EditorType="@FormEditorType.Password" Field="@nameof(Model.PasswordRepeat)"></FormItem>
+                <FormItem Field="@nameof(Model.Username)" LabelText="Nazwa użytkownika"></FormItem>
+                <FormItem Field="@nameof(Model.Email)" LabelText="Email"></FormItem>
+                <FormItem EditorType="@FormEditorType.Password" LabelText="Hasło" Field="@nameof(Model.Password)"></FormItem>
+                <FormItem EditorType="@FormEditorType.Password" LabelText="Powtórz hasło" Field="@nameof(Model.PasswordRepeat)"></FormItem>
             </FormItems>
         </Syncfusion.Blazor.DataForm.SfDataForm>
     </div>
@@ -48,6 +48,7 @@
                     Username = item.Username
                 });
 
+
             NotificationService.Notify(new NotificationMessage
                 {
                     Severity = NotificationSeverity.Success,
@@ -55,7 +56,10 @@
                     Summary = "Zalogowano",
                     CloseOnClick = true
                 });
-            NavigationManager.NavigateTo("/");
+            var timer = new Timer(new TimerCallback(_ =>
+        {
+            NavigationManager.NavigateTo("/", forceLoad: true);
+        }), null, 2000, 2000);
         }
         catch (Exception ex)
         {

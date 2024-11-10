@@ -5,8 +5,12 @@
         @ChildContent
     </Authorized>
     <NotAuthorized>
-        <p>You are not authorized to view this content. Please <a href="/login">log in</a>.</p>
+        <RadzenAlert Variant="@Variant.Filled" AlertStyle="@AlertStyle.Danger" Size="@AlertSize.Large" Shade="Shade.Default" AllowClose=false>
+            Musisz się zalogować aby kontynuować <br/>
+            <a href="/login">Zaloguj się</a>.
+        </RadzenAlert>
     </NotAuthorized>
+
 </AuthorizeView>
 
 @code {

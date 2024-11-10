@@ -33,6 +33,8 @@ namespace DB.Modules.Payment.Queries
             public bool BrakDostepu { get; set; } = false;
 
             public bool FormEnabled => Confirmed == false;
+
+            public decimal Kwota { get; set; }
         }
 
         private class Handler : IRequestHandler<Request, Response>
@@ -47,14 +49,21 @@ namespace DB.Modules.Payment.Queries
                 var auction = _dbContext.Auctions
                     .AsNoTracking()
                     .Include(x => x.Buyer)
+                    .Include(x => x.Offers)
                     .FirstOrDefault(x => x.Id == request.AuctionId);
+                var result = new Response();
+
+
+                var w = auction.Offers.Select(x => x.PriceInstant).Concat(auction.Offers.Select(x => x.PriceAuction)).Max();
+                result.Kwota = w.Value;
+
+
+
 
                 if (auction.BuyerId.HasValue == false || auction.BuyerId.Value != request.UserId)
                 {
-                    return new Response()
-                    {
-                        BrakDostepu = true
-                    };
+                    result.BrakDostepu = true;
+                    return result;
                 }
 
                 var item = _dbContext.PostalData
@@ -64,30 +73,29 @@ namespace DB.Modules.Payment.Queries
 
                 if (item == null)
                 {
-                    return new Response()
-                    {
-                        AuctionId = request.AuctionId,
-                        UserId = request.UserId,
-                        BuyerUsername = auction.Buyer.Username,
-                        BuyerId = auction.BuyerId.Value,
 
-                    };
+                    result.AuctionId = request.AuctionId;
+                    result.UserId = request.UserId;
+                    result.BuyerUsername = auction.Buyer.Username;
+                    result.BuyerId = auction.BuyerId.Value;
+
+                    return result;
                 }
                 else
                 {
-                    return new Response()
-                    {
-                        Id = item.Id,
-                        Adress = item.Adress,
-                        AuctionId = item.AuctionId,
-                        BuyerId = auction.BuyerId.Value,
-                        PhoneNumber = item.PhoneNumber,
-                        PostCode = item.PostCode,
-                        Confirmed = item.Confirmed,
-                        UserId = item.UserId,
-                        BuyerUsername = item.User.Username
-                    };
+
+                    result.Id = item.Id;
+                    result.Adress = item.Adress;
+                    result.AuctionId = item.AuctionId;
+                    result.BuyerId = auction.BuyerId.Value;
+                    result.PhoneNumber = item.PhoneNumber;
+                    result.PostCode = item.PostCode;
+                    result.Confirmed = item.Confirmed;
+                    result.UserId = item.UserId;
+                    result.BuyerUsername = item.User.Username;
+
                 }
+                return result;
             }
         }
 
