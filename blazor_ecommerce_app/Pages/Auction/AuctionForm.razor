@@ -10,13 +10,14 @@
                 <DataAnnotationsValidator></DataAnnotationsValidator>
             </FormValidator>
             <FormItems>
-                <FormItem Field="@nameof(Model.AuctionType)">
+                <FormItem Field="@nameof(Model.AuctionType)"  LabelText="Typ aukcji">
                     <Template>
                         <Syncfusion.Blazor.DropDowns.SfDropDownList 
                         TValue="int" 
                         TItem="DB.SD.DropDownModel"
-                        Placeholder="Select auction type" 
+                        Placeholder="Wybierz typ aukcji" 
                         DataSource="@Lista"
+
                         ValueChanged="(int value)=> {Model.AuctionType = (DB.Domain.Entities.AuctionType)value;StateHasChanged();}">
                         <Syncfusion.Blazor.DropDowns.DropDownListFieldSettings Value="Id" Text="Name" />
                         </Syncfusion.Blazor.DropDowns.SfDropDownList>
@@ -24,8 +25,8 @@
                 </FormItem>
                
                
-                <FormItem Field="@nameof(Model.Title)"></FormItem>
-              <FormItem Field="@nameof(Model.Description)">
+                <FormItem Field="@nameof(Model.Title)" LabelText="Tytuł"></FormItem>
+              <FormItem Field="@nameof(Model.Description)" LabelText="Opis">
                  <Template>
                      <Syncfusion.Blazor.RichTextEditor.SfRichTextEditor 
                      Value="@Model.Description" 
@@ -39,11 +40,11 @@
                 </FormItem>
 
 
-                <FormItem Field="@nameof(Model.Photos)">
+                <FormItem Field="@nameof(Model.Photos)" LabelText="Zdjęcia">
                     <Template>
-                        <SfUploader  MaxFileSize="5000000" AllowMultiple=true AutoUpload="true">
+                        <SfUploader   MaxFileSize="5000000" AllowMultiple=true AutoUpload="true">
                             <UploaderEvents ValueChange="@OnChange"></UploaderEvents>
-                            <UploaderButtons>
+                            <UploaderButtons >
                          
                             </UploaderButtons>
                         </SfUploader>
@@ -54,14 +55,14 @@
             @if (DB.SD.AuctionSD.IsAuction(Model.AuctionType))
             {
                 <FormItems>
-                <FormItem Field="@nameof(Model.PriceAuction)" LabelText="Auction starting price" ColumnSpan="6"></FormItem>
+                <FormItem Field="@nameof(Model.PriceAuction)" LabelText="Cena wywoławcza" ColumnSpan="6"></FormItem>
                 </FormItems>
             }
             @if (DB.SD.AuctionSD.IsInstantBuy(Model.AuctionType))
             {
             <FormItems>
 
-                    <FormItem Field="@nameof(Model.PriceInstant)" LabelText="Auction instant buy price" ColumnSpan="6"></FormItem>
+                    <FormItem Field="@nameof(Model.PriceInstant)" LabelText="Cena kup teraz" ColumnSpan="6"></FormItem>
             </FormItems>
                 }
         </Syncfusion.Blazor.DataForm.SfDataForm>

@@ -14,8 +14,19 @@
             <Content> Jesteś pewien, że chcesz kupić za @Model.PriceInstant.Value.ToString()? </Content>
         </Syncfusion.Blazor.Popups.DialogTemplates>
         <DialogButtons>
-            <DialogButton Content="OK" IsPrimary="true" OnClick="()=>BuyInstant()" />
-            <DialogButton Content="Cancel" OnClick="()=>{BuyInstantVisible = false;StateHasChanged();}" />
+            <DialogButton Content="Tak" CssClass="e-success" IsPrimary="true" OnClick="()=>BuyInstant()" />
+            <DialogButton Content="Nie" OnClick="()=>{BuyInstantVisible = false;StateHasChanged();}" />
+        </DialogButtons>
+    </Syncfusion.Blazor.Popups.SfDialog>
+
+    <Syncfusion.Blazor.Popups.SfDialog Width="250px" ShowCloseIcon="true" IsModal="true" @bind-Visible="@ZakonczenieAukcji">
+        <Syncfusion.Blazor.Popups.DialogTemplates>
+            <Header> Potwierdzenie </Header>
+            <Content> Czy na pewno chcesz zakończyć aukcje? </Content>
+        </Syncfusion.Blazor.Popups.DialogTemplates>
+        <DialogButtons>
+            <DialogButton Content="Tak" CssClass="e-success" IsPrimary="true" OnClick="()=>FinishAuctionEvent()" />
+            <DialogButton Content="Nie" OnClick="()=>{ZakonczenieAukcji = false;StateHasChanged();}" />
         </DialogButtons>
     </Syncfusion.Blazor.Popups.SfDialog>
 
@@ -26,8 +37,8 @@
             <Content> Jesteś pewien, że chcesz licytować za @AuctionOffer.ToString()? </Content>
         </Syncfusion.Blazor.Popups.DialogTemplates>
         <DialogButtons>
-            <DialogButton Content="OK" IsPrimary="true" OnClick="()=>MakeOffer()" />
-            <DialogButton Content="Cancel" OnClick="()=>{AuctionOfferVisible = false;StateHasChanged();}" />
+            <DialogButton CssClass="e-success" Content="Tak" IsPrimary="true" OnClick="()=>MakeOffer()" />
+            <DialogButton Content="Nie" OnClick="()=>{AuctionOfferVisible = false;StateHasChanged();}" />
         </DialogButtons>
     </Syncfusion.Blazor.Popups.SfDialog>
 
@@ -59,7 +70,8 @@
         <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" Gap="1rem" class="rz-p-3">
             @if (User.Id == Model.OwnerId && Model.Statuses.Any(x => x.Type == DB.Domain.Entities.AuctionStatusType.Finished) == false && Model.Statuses.Any(x => x.Type == DB.Domain.Entities.AuctionStatusType.FinishedByOwner) == false)
             {
-                <RadzenButton Click='()=>{ FinishAuction(Model.AuctionId);}' Variant="Variant.Text" class="rz-text-danger-color"
+            
+                <RadzenButton Click='()=>{ ZakonczenieAukcji = true; StateHasChanged();}' Variant="Variant.Text" class="rz-text-danger-color"
                               Text="Zakończ aukcje" />
             }
 
@@ -261,6 +273,7 @@
 
     public bool BuyInstantVisible { get; set; } = false;
     public bool AuctionOfferVisible { get; set; } = false;
+    public bool ZakonczenieAukcji { get; set; } = false;
 
     private int UserId { get; set; }
 
@@ -327,7 +340,6 @@
             var item = Model.AuctionOfferOption as DB.Modules.Auction.Command.MakeOffer.Request;
             item.Price = AuctionOffer;
             await Mediator.Send(item);
-            AuctionOfferVisible = false;
             await FetchData();
         }
         else
@@ -340,25 +352,21 @@
                     CloseOnClick = true
                 });
 
+
         }
-       await FetchData();
+        AuctionOfferVisible = false;
+        await FetchData();
     }
 
-    public async void FinishAuction(int auctionId)
-    {
-        Dialog.OnClose += FinishAuctionEvent;
-        await Dialog.Confirm("Potwierdzenie", "Na pewno chcesz zakończyć aukcje?",
-                 new ConfirmOptions() { OkButtonText = "Tak", CancelButtonText = "Nie" });
 
-    }
-
-    public async void FinishAuctionEvent(dynamic auctionId)
+    public async Task FinishAuctionEvent()
     {
         await Mediator.Send(new DB.Modules.Auction.Command.FinishMyAuction.Request()
             {
                 UserId = UserId,
                 AuctionId = Model.AuctionId
             });
+            ZakonczenieAukcji = false;
         await FetchData();
 
     }

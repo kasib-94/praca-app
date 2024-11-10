@@ -89,9 +89,18 @@ namespace DB.Modules.Auction.Command
                 RuleFor(x => x.Title).MinimumLength(5).WithMessage("Title must have at least 5 letters");
                 RuleFor(x => x.Type).Must(x => (int)x > 0).WithMessage("You have to choose type of auction");
                 RuleFor(x => x.Description).MaximumLength(20).WithMessage("Description at least 20 letters");
+
+                RuleFor(x => x.PriceInstant).Must(x => x > 0)
+                    .When(x => DB.SD.AuctionSD.IsInstantBuy(x.Type))
+                    .WithMessage("Musisz ustawić cenę kup teraz");
+
+                RuleFor(x => x.PriceInstant).Must(x => x > 0)
+                   .When(x => DB.SD.AuctionSD.IsAuction(x.Type))
+                   .WithMessage("Musisz ustawić cenę wywoławczą");
+
                 RuleFor(x => x).Must(x => x.PriceAuction < x.PriceInstant)
                     .When(x => x.Type == AuctionType.Days_7_With_Instant || x.Type == AuctionType.Days_14_With_Instant)
-                    .WithMessage("Instant price must be bigger than price");
+                    .WithMessage("Cena kup teraz musi być większa od ceny wywoławczej");
 
 
             }

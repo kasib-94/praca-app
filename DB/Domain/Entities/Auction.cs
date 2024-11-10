@@ -8,38 +8,33 @@ namespace DB.Domain.Entities
 {
     public enum AuctionType
     {
-        [Display(Name = "Instant buy")]
+        [Display(Name = "Kup teraz")]
         Instant = 1,
-        [Display(Name = "14 days auction")]
+        [Display(Name = "Kup teraz 14 dni")]
         Days_14 = 2,
-        [Display(Name = "7 days auction")]
+        [Display(Name = "Kup teraz 7 dni")]
         Days_7 = 3,
-        [Display(Name = "7 days auction with instant buy")]
+        [Display(Name = "Kup teraz albo licytuj 7 dni")]
         Days_7_With_Instant = 4,
-        [Display(Name = "14 days auction with instant buy")]
+        [Display(Name = "Kup teraz albo licytuj 14 dni")]
         Days_14_With_Instant = 5
     }
 
     public class Auction
     {
         public int Id { get; set; }
-
         public int UserId { get; set; }
         [ForeignKey("UserId")]
         public User User { get; set; }
-
         public string Title { get; set; } = "";
         public string Description { get; set; } = "";
         public AuctionType Type { get; set; }
-
         public string AuctionGuid { get; set; } = "";
-
         public decimal PriceInstant { get; set; }
         public decimal PriceAuctionStart { get; set; }
         public int? BuyerId { get; set; }
         [ForeignKey("BuyerId")]
         public User? Buyer { get; set; }
-
         public DateTime AuctionFinish { get; set; }
         public DateTime AuctionStart { get; set; }
 
